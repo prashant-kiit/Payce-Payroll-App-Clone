@@ -1,13 +1,14 @@
 const Components = {
-    Basic : (experience, attendance) => {experience * 1000000},
-    Bonus : (experience, attendance) => {attendance * 1000},
-    Housing_Allowance : (experience, attendance) => {100000},
+    Basic : (experience, attendance) => {return Math.pow(experience, 1) * Math.pow(attendance, 0) * 100000},
+    Housing_Allowance : (experience, attendance) => {return Math.pow(experience, 1) * Math.pow(attendance, 0) * 10000},
+    Transport_Allowance : (experience, attendance) => {return Math.pow(experience, 1) * Math.pow(attendance, 0) * 100},
+    Bonus : (experience, attendance) => {return Math.pow(experience, 0) * Math.pow(attendance, 1) * 1000},
     Tax : (experience, attendance) => {
-        if(experience * 1000000 < 2000000) {
+        if(Math.pow(experience, 1) * Math.pow(attendance, 0) * 100000 < 200000) {
             return 5;
         }
-        else if(experience * 1000000 > 2000000) {
-            if(experience * 1000000 < 6000000) {
+        else if(Math.pow(experience, 1) * Math.pow(attendance, 0) * 100000 > 200000) {
+            if(Math.pow(experience, 1) * Math.pow(attendance, 0) * 100000 < 600000) {
                 return 8;
             }
             return 12;

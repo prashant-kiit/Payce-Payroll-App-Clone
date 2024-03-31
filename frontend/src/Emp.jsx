@@ -1,4 +1,4 @@
-import {useState } from 'react'
+import { useState } from 'react'
 
 function Emp() {
 
@@ -16,16 +16,17 @@ function Emp() {
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8'
                 },
-                body: JSON.stringify({ "id": id, "name": name, "unitId": unitId, "experience": experience,  })
+                body: JSON.stringify({ "id": id, "name": name, "unitId": unitId, "experience": experience, })
                 // "salary": salary
             })
 
             console.log(response)
 
-            if (!response.ok) {
-                setStatus('Status : ' + response.status + ' - ' + response.statusText)
-                throw new Error(response.status + ' - ' + response.statusText)
-            }
+            // if (!response.ok) {
+            //     setStatus('Status : ' + response.status + ' - ' + response.statusText)
+            //     throw new Error(response.status + ' - ' + response.statusText)
+            // }
+
         } catch (err) {
             console.log('Client-Error')
             console.log(err)

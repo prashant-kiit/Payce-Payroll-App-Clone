@@ -6,7 +6,7 @@ const EmployeeSchema = new Schema({
     name: String,
     unitId: Number,
     experience: Number,
-    salary: String,
+    salary: Number,
 });
 
 const Employee = model('Employee', EmployeeSchema);

@@ -16,6 +16,7 @@ router.post('/unit', async (req, res) => {
     });
 
     console.log(unit);
+
     try {
         await unit.save();
         res.status(404).send();
@@ -27,9 +28,50 @@ router.post('/unit', async (req, res) => {
     }
 });
 
-router.get('/empsal/:id', async (req, res) => {
+router.post('/payst', async (req, res) => {
+    let components = [];
+
+    Object.keys(req.body).map((key) => {
+        if (typeof req.body[key] === 'boolean' && req.body[key])
+            components.push(key);
+    });
+    console.log(components);
+
+    const payStructure = new PayStructure({
+        unitId: req.body.unitId,
+        components: components,
+    });
+
+    console.log(payStructure);
+
     try {
-        const response = await fetch(`http://127.0.0.1:3000/app/emp/${req.params.id}`, {
+        await payStructure.save();
+        res.status(200).send();
+    }
+    catch (err) {
+        console.log('Server-Error');
+        console.log(err);
+        res.send(err);
+    }
+});
+
+router.get('/payst/:unitId', async (req, res) => {
+    try {
+        const payStructure = await PayStructure.find({ unitId: req.params.unitId });
+        console.log(payStructure);
+        res.setHeader('Content-Type', 'application/json; charset=UTF-8');
+        res.status(200).send(payStructure);
+    }
+    catch (err) {
+        console.log('Server-Error');
+        console.log(err);
+        res.send(err);
+    }
+});
+
+router.post('/emp', async (req, res) => {
+    try {
+        const response = await fetch(`http://127.0.0.1:3000/app/payst/${req.body.unitId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json; charset=UTF-8'
@@ -37,7 +79,33 @@ router.get('/empsal/:id', async (req, res) => {
         });
 
         const data = await response.json();
-        res.status(200).send({ salary: data[0].salary });
+        console.log('data');
+        console.log(data);
+        console.log('data[0].components');
+        console.log(data[0].components);
+        let _salary = 0;
+        for (const component of data[0].components) {
+            console.log(component)
+            console.log(typeof Components[component])
+            console.log(req.body.experience)
+            let temp = Components[component](req.body.experience, req.body.experience);
+            console.log(temp)
+            _salary += temp;
+        }
+        console.log('_salary')
+        console.log(_salary)
+        const employee = new Employee({
+            id: req.body.id,
+            name: req.body.name,
+            unitId: req.body.unitId,
+            experience: req.body.experience,
+            salary: _salary,
+        });
+
+        console.log(employee);
+
+        await employee.save();
+        res.status(200).send();
     }
     catch (err) {
         console.log('Server-Error');
@@ -59,9 +127,9 @@ router.get('/emp/:id', async (req, res) => {
     }
 });
 
-router.post('/emp', async (req, res) => {
+router.get('/empsal/:id', async (req, res) => {
     try {
-        const response = await fetch(`http://127.0.0.1:3000/app/payst/${req.body.unitId}`, {
+        const response = await fetch(`http://127.0.0.1:3000/app/emp/${req.params.id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json; charset=UTF-8'
@@ -69,69 +137,7 @@ router.post('/emp', async (req, res) => {
         });
 
         const data = await response.json();
-        console.log(data);
-        console.log(data[0].components);
-        let _salary = 0;
-        for (const component of data[0].components) {
-            _salary += Components[component](req.body.experience, req.body.experience);
-        }
-
-        const employee = new Employee({
-            id: req.body.id,
-            name: req.body.name,
-            unitId: req.body.unitId,
-            experience: req.body.experience,
-            salary: _salary,
-        });
-
-        console.log(employee);
-
-        await employee.save();
-        res.status(200).send();
-    }
-    catch (err) {
-        console.log('Server-Error');
-        console.log(err);
-        res.send(err);
-    }
-});
-
-
-router.post('/payst', async (req, res) => {
-    let components = [];
-
-    Object.keys(req.body).map((key) => {
-        if (typeof req.body[key] === 'boolean' && req.body[key])
-            components.push(key);
-    });
-    console.log(components);
-
-    const payStructure = new PayStructure({
-        unitId: req.body.unitId,
-        components: components,
-    });
-
-    console.log(payStructure);
-
-    console.log(payStructure);
-    try {
-        await payStructure.save();
-        res.status(200).send();
-    }
-    catch (err) {
-        console.log('Server-Error');
-        console.log(err);
-        res.send(err);
-    }
-});
-
-
-router.get('/payst/:unitId', async (req, res) => {
-    try {
-        const payStructure = await PayStructure.find({ unitId: req.params.unitId });
-        console.log(payStructure);
-        res.setHeader('Content-Type', 'application/json; charset=UTF-8');
-        res.status(200).send(payStructure);
+        res.status(200).send({ salary: data[0].salary });
     }
     catch (err) {
         console.log('Server-Error');

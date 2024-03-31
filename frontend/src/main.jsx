@@ -6,6 +6,6 @@ import PayStructure from './PayStructure.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <Emp />
+    <PayStructure />
   </React.StrictMode>,
 )

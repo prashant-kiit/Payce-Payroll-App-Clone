@@ -21,7 +21,7 @@ function Org() {
       console.log(response)
 
     } catch (err) {
-      //console.log('Client-Error')
+      console.log('Client-Error')
       console.log(err)
     }
   }
@@ -33,15 +33,15 @@ function Org() {
         POST UNIT FORM
       </p>
       <div>
-          <input type="number" name="id" placeholder="id" value={id} onChange={(e) => { setId(e.target.value) }} /><br />
-          <input type="text" name="name" placeholder="name" value={name} onChange={(e) => { setName(e.target.value) }} /><br />
-          <input type="text" name="type" placeholder="type" value={type} onChange={(e) => { setType(e.target.value) }} /><br />
-          <input type="text" name="region" placeholder="region" value={region} onChange={(e) => { setRegion(e.target.value) }} /><br />
-          <input type="text" name="currency" placeholder="currency" value={currency} onChange={(e) => { setCurrency(e.target.value) }} /><br />
-          <button type="submit" name="submit-button" id="submit-button" onClick={() => {postUnit()}}>Submit</button>
+        <input type="number" name="id" placeholder="id" value={id} onChange={(e) => { setId(e.target.value) }} /><br />
+        <input type="text" name="name" placeholder="name" value={name} onChange={(e) => { setName(e.target.value) }} /><br />
+        <input type="text" name="type" placeholder="type" value={type} onChange={(e) => { setType(e.target.value) }} /><br />
+        <input type="text" name="region" placeholder="region" value={region} onChange={(e) => { setRegion(e.target.value) }} /><br />
+        <input type="text" name="currency" placeholder="currency" value={currency} onChange={(e) => { setCurrency(e.target.value) }} /><br />
+        <button type="submit" name="submit-button" id="submit-button" onClick={() => { postUnit() }}>Submit</button>
       </div>
     </>
   )
 }
-// "http://127.0.0.1:3000/app/unit"
+
 export default Org

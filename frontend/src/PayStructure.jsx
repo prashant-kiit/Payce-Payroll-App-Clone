@@ -5,6 +5,7 @@ function PayStructure() {
     const [isBasic, setBasic] = useState(false)
     const [isBonus, setBonus] = useState(false)
     const [isHousing_Allowance, setHousing_Allowance] = useState(false)
+    const [isTransport_Allowance, setTransport_Allowance] = useState(false)
     const [isTax, setTax] = useState(false)
 
     const postPayStructure = async () => {
@@ -14,15 +15,16 @@ function PayStructure() {
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8'
                 },
-                body: JSON.stringify({ "unitId" : unitId, "Basic": isBasic, "Bonus": isBonus, "Housing_Allowance": isHousing_Allowance, "Tax": isTax })
+                body: JSON.stringify({ "unitId": unitId, "Bonus": isBonus, "Housing_Allowance": isHousing_Allowance, "Transport_Allowance": isTransport_Allowance, "Basic": isBasic, "Tax": isTax })
             })
 
             console.log(response)
 
-            if (!response.ok) {
-                setStatus('Status : ' + response.status + ' - ' + response.statusText)
-                throw new Error(response.status + ' - ' + response.statusText)
-            }
+            // if (!response.ok) {
+            //     setStatus('Status : ' + response.status + ' - ' + response.statusText)
+            //     throw new Error(response.status + ' - ' + response.statusText)
+            // }
+
         } catch (err) {
             console.log('Client-Error')
             console.log(err)
@@ -45,19 +47,26 @@ function PayStructure() {
                     checked={isBasic}
                     onChange={() => { setBasic(!isBasic) }}
                 /> <br />
-                <label name="Bonus">Bonus</label>
-                <input
-                    type="checkbox"
-                    name="Bonus"
-                    checked={isBonus}
-                    onChange={() => { setBonus(!isBonus) }}
-                /> <br />
                 <label name="Housing_Allowance">Housing_Allowance</label>
                 <input
                     type="checkbox"
                     name="Housing_Allowance"
                     checked={isHousing_Allowance}
                     onChange={() => { setHousing_Allowance(!isHousing_Allowance) }}
+                /> <br />
+                <label name="Transport_Allowance">Transport_Allowance</label>
+                <input
+                    type="checkbox"
+                    name="Transport_Allowance"
+                    checked={isTransport_Allowance}
+                    onChange={() => { setTransport_Allowance(!isTransport_Allowance) }}
+                /> <br />
+                <label name="Bonus">Bonus</label>
+                <input
+                    type="checkbox"
+                    name="Bonus"
+                    checked={isBonus}
+                    onChange={() => { setBonus(!isBonus) }}
                 /> <br />
                 <label name="Tax">Tax</label>
                 <input
