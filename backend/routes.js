@@ -10,7 +10,7 @@ router.post('/unit', async (req, res) => {
     const unit = new Unit({
         id: req.body.id,
         name: req.body.name,
-        type: req.body.type,
+        task: req.body.task,
         region: req.body.region,
         currency: req.body.currency,
     });
@@ -31,9 +31,9 @@ router.post('/unit', async (req, res) => {
 router.post('/payst', async (req, res) => {
     let components = [];
 
-    Object.keys(req.body).map((key) => {
-        if (typeof req.body[key] === 'boolean' && req.body[key])
-            components.push(key);
+    Object.entries(req.body.componentStatus).map(([component, status]) => {
+        if (status)
+            components.push(component);
     });
     console.log(components);
 
@@ -71,27 +71,7 @@ router.get('/payst/:unitId', async (req, res) => {
 
 router.post('/emp', async (req, res) => {
     try {
-        const response = await fetch(`http://127.0.0.1:3000/app/payst/${req.body.unitId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json; charset=UTF-8'
-            },
-        });
-
-        const data = await response.json();
-        console.log('data');
-        console.log(data);
-        console.log('data[0].components');
-        console.log(data[0].components);
-        let _salary = 0;
-        for (const component of data[0].components) {
-            console.log(component)
-            console.log(typeof Components[component])
-            console.log(req.body.experience)
-            let temp = Components[component](req.body.experience, req.body.experience);
-            console.log(temp)
-            _salary += temp;
-        }
+        let _salary = await getSalary(req);
         console.log('_salary')
         console.log(_salary)
         const employee = new Employee({
@@ -145,5 +125,46 @@ router.get('/empsal/:id', async (req, res) => {
         res.send(err);
     }
 });
+
+router.get('/components', async (req, res) => {
+    try {
+        let componentStatus = {};
+        Object.keys(Components).map((component) => {
+            componentStatus[component] = false
+        });
+
+        res.status(200).send(componentStatus);
+    }
+    catch (err) {
+        console.log('Server-error');
+        console.log(err);
+        res.send(err);
+    }
+})
+
+const getSalary = async (req) => {
+    const response = await fetch(`http://127.0.0.1:3000/app/payst/${req.body.unitId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json; charset=UTF-8'
+        },
+    });
+
+    const data = await response.json();
+    console.log('data');
+    console.log(data);
+    console.log('data[0].components');
+    console.log(data[0].components);
+    let _salary = 0;
+    for (const component of data[0].components) {
+        // console.log(component)
+        // console.log(typeof Components[component])
+        // console.log(req.body.experience)
+        let temp = Components[component](req.body.experience, req.body.experience);
+        // console.log(temp)
+        _salary += temp;
+    }
+    return _salary;
+}
 
 export default router;
