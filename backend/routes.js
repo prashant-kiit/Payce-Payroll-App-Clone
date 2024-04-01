@@ -79,6 +79,7 @@ router.post('/emp', async (req, res) => {
             name: req.body.name,
             unitId: req.body.unitId,
             experience: req.body.experience,
+            avgWorkHour: null,
             salary: _salary,
         });
 
@@ -140,7 +141,7 @@ router.get('/components', async (req, res) => {
         console.log(err);
         res.send(err);
     }
-})
+});
 
 const getSalary = async (req) => {
     const response = await fetch(`http://127.0.0.1:3000/app/payst/${req.body.unitId}`, {
@@ -166,5 +167,26 @@ const getSalary = async (req) => {
     }
     return _salary;
 }
+
+router.put('attendance', (req, res) => {
+    try {
+        console.log(req.body);
+        res.status(200).send();
+    } catch (err) {
+        console.log('Server-Error');
+        res.send(err);
+    }
+});
+
+
+router.put('/empAttend', (req, res) => {
+    try {
+        console.log(req.body);
+        res.status(200).send();
+    } catch (err) {
+        console.log('Server-Error');
+        res.send(err);
+    }
+});
 
 export default router;

@@ -6,6 +6,7 @@ const EmployeeSchema = new Schema({
     name: String,
     unitId: Number,
     experience: Number,
+    avgWorkHour: Number,
     salary: Number,
 });
 
