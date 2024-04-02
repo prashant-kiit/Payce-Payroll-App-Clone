@@ -22,10 +22,10 @@ function Emp() {
 
             console.log(response)
 
-            // if (!response.ok) {
-            //     setStatus('Status : ' + response.status + ' - ' + response.statusText)
-            //     throw new Error(response.status + ' - ' + response.statusText)
-            // }
+            if (!response.ok) {
+                setStatus('Status : ' + response.status + ' - ' + response.statusText)
+                throw new Error(response.status + ' - ' + response.statusText)
+            }
 
         } catch (err) {
             console.log('Client-Error')

@@ -20,6 +20,11 @@ function Unit() {
 
       console.log(response)
 
+      if (!response.ok) {
+        setStatus('Status : ' + response.status + ' - ' + response.statusText)
+        throw new Error(response.status + ' - ' + response.statusText)
+      }
+
     } catch (err) {
       console.log('Client-Error')
       console.log(err)

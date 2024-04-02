@@ -5,6 +5,7 @@ function WeekDates({
     month = null,
     weekStartDay = null,
     weekEndDay = null,
+    startDayIndex = null,
     attendanceDates = null,
     onAttendanceDatesChange = null }) {
 
@@ -14,7 +15,12 @@ function WeekDates({
     console.log('month = ' + month)
     console.log('year = ' + year)
 
+    if (weekStartDay === null)
+        return (<div></div>)
+
     const [weekDateDivs, setWeekDateDivs] = useState([])
+
+    const weekdaysNumericRep = ['Sun', 'Mon', 'Tue', 'Wed', 'Thru', 'Fri', 'Sat']
 
     useEffect(() => {
         createweekDateDivsOfSelectedDate()
@@ -25,37 +31,31 @@ function WeekDates({
 
     const createweekDateDivsOfSelectedDate = useCallback(() => {
         let weekDateDivsTemp = []
+        let dayIndex = startDayIndex
         for (let weekDay = weekStartDay; weekDay <= weekEndDay; weekDay++) {
             console.log('weekDate = ' + weekDay + '/' + month + '/' + year)
-            const identifier = (weekDay === '' ? 'DD' : weekDay) + '/' + (month === '' ? 'MM' : month) + '/' + (year === '' ? 'YYYY' : year)
+            console.log('Day = ' + weekdaysNumericRep[dayIndex])
+            const weekDate = weekDay + '/' + month + '/' + year
             weekDateDivsTemp.push((
-                <div key={"keyDiv" + identifier}>
-                    <label key={"keyLabelWeekDate" + identifier} htmlFor={"labelWeekDate" + identifier}>Week Date {' '} {identifier}</label>
-                    {/* {' '}
-                    <label key={"keyLabelLock" + identifier} htmlFor={"labelLock" + identifier}>Lock</label>
-                    <input
-                        key={"keyInputLock" + identifier}
-                        type="checkbox"
-                        name={"labelLock" + identifier}
-                        onChange={() => {
-
-                        }} /> */}
+                <div key={"keyDiv" + weekDate}>
+                    Week-Date {' '} {weekDate} {' '} {weekdaysNumericRep[dayIndex]} {' '}
+                    <label key={"keyLabelHours" + weekDate} htmlFor={"labelHours" + weekDate}>Work-Hours</label>
                     {' '}
-                    <label key={"keyLabelHours" + identifier} htmlFor={"labelHours" + identifier}>Work Hours</label>
                     <input
-                        key={"keyInputHours" + identifier}
+                        key={"keyInputHours" + weekDate}
                         type="number"
-                        name={"labelHours" + identifier}
+                        name={"labelHours" + weekDate}
                         onChange={(e) => {
                             console.log(e.target.value)
                             const attendanceDatesTemp = attendanceDates
-                            attendanceDatesTemp[identifier] = e.target.value
+                            attendanceDatesTemp[weekDate] = e.target.value
                             onAttendanceDatesChange(attendanceDatesTemp)
-                            console.log(identifier)
+                            console.log(weekDate)
                             console.log(attendanceDates)
                         }} />
                 </div>
             ))
+            dayIndex = (++dayIndex) % 7
         }
         setWeekDateDivs(weekDateDivsTemp)
     })

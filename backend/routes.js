@@ -3,21 +3,22 @@ import Unit from './models/unit.js';
 import Employee from './models/employee.js';
 import PayStructure from './models/payStructure.js';
 import Components from './data/components.js';
+import Attendance from './models/attendance.js';
 
 const router = Router();
 
 router.post('/unit', async (req, res) => {
-    const unit = new Unit({
-        id: req.body.id,
-        name: req.body.name,
-        task: req.body.task,
-        region: req.body.region,
-        currency: req.body.currency,
-    });
-
-    console.log(unit);
-
     try {
+        const unit = new Unit({
+            id: req.body.id,
+            name: req.body.name,
+            task: req.body.task,
+            region: req.body.region,
+            currency: req.body.currency,
+        });
+
+        console.log(unit);
+
         await unit.save();
         res.status(404).send();
     }
@@ -29,22 +30,22 @@ router.post('/unit', async (req, res) => {
 });
 
 router.post('/payst', async (req, res) => {
-    let components = [];
-
-    Object.entries(req.body.componentStatus).map(([component, status]) => {
-        if (status)
-            components.push(component);
-    });
-    console.log(components);
-
-    const payStructure = new PayStructure({
-        unitId: req.body.unitId,
-        components: components,
-    });
-
-    console.log(payStructure);
-
     try {
+        let components = [];
+
+        Object.entries(req.body.componentStatus).map(([component, status]) => {
+            if (status)
+                components.push(component);
+        });
+        console.log(components);
+
+        const payStructure = new PayStructure({
+            unitId: req.body.unitId,
+            components: components,
+        });
+
+        console.log(payStructure);
+
         await payStructure.save();
         res.status(200).send();
     }
@@ -168,12 +169,30 @@ const getSalary = async (req) => {
     return _salary;
 }
 
-router.put('attendance', (req, res) => {
+router.put('/attendance', async (req, res) => {
     try {
-        console.log(req.body);
+        const attendance = new Attendance({
+            empId: req.body.empId,
+            attendanceDates: req.body.attendanceDates
+        })
+
+        let attendanceModified = {};
+        attendanceModified = Object.assign(attendanceModified, attendance._doc);
+        console.log(attendanceModified);
+        delete attendanceModified._id;
+        console.log(attendanceModified);
+        console.log(attendance);
+
+        await Attendance.findOneAndUpdate(
+            { empId: attendance.empId },
+            attendanceModified,
+            { upsert: true, new: true }
+        );
+        
         res.status(200).send();
     } catch (err) {
         console.log('Server-Error');
+        console.log(err);
         res.send(err);
     }
 });
