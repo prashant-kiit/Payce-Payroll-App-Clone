@@ -7,7 +7,8 @@ function WeekDates({
     weekEndDay = null,
     startDayIndex = null,
     attendanceDates = null,
-    onAttendanceDatesChange = null }) {
+    onAttendanceDatesChange = null,
+    attendanceDatesCurrentSessionHistory = null}) {
 
     console.log('WeekDates running with Selected Date = ')
     console.log('weekStartDay = ' + weekStartDay)
@@ -46,7 +47,7 @@ function WeekDates({
                         key={"keyInputHours" + weekDate}
                         type="number"
                         name={"labelHours" + weekDate}
-                        value={attendanceDates[weekDate]}
+                        value={attendanceDates[weekDate] ?? attendanceDatesCurrentSessionHistory[weekDate]}
                         onChange={(e) => {
                             // console.log(weekDate)
                             // console.log(e.target.value)

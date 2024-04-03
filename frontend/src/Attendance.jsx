@@ -14,6 +14,7 @@ function Attendance() {
         startDayIndex: null,
     })
     const [attendanceDates, setAttendanceDates] = useState({})
+    const [attendanceDatesCurrentSessionHistory, setAttendanceDatesCurrentSessionHistory] = useState({})
     const [attendanceDayWise, setAttendanceDayWise] = useState({})
 
     const daysPerMonth = [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -179,6 +180,7 @@ function Attendance() {
                     onAttendanceDatesChange={(attendanceDates) => {
                         setAttendanceDates(attendanceDates)
                     }}
+                    attendanceDatesCurrentSessionHistory = {attendanceDatesCurrentSessionHistory}
                 />
             </div>
             <div>
@@ -187,7 +189,12 @@ function Attendance() {
                     onClick={async () => {
                         const currentDateAndTime = await findCurrentDateAndTime()
                         submitAttendance(currentDateAndTime)
-                        setAttendanceDates([]) // reset attendanceDates to empty array
+                        // insert latest submissions into the session history
+                        Object.assign(attendanceDatesCurrentSessionHistory, attendanceDates)
+                        // set Session History of submitted attendance dates
+                        setAttendanceDatesCurrentSessionHistory(attendanceDatesCurrentSessionHistory) 
+                        // reset attendanceDates to empty array
+                        setAttendanceDates([]) 
                     }}>Confirm & Submit</button>
             </div>
         </div>
