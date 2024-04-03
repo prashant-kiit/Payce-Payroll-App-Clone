@@ -4,7 +4,7 @@ import WeekDates from './WeekDates.jsx'
 // import 'react-calendar/dist/Calendar.css'
 
 function Attendance() {
-    const [empId, setEmpId] = useState(0)
+    // const [empId, setEmpId] = useState(935065)
     const [weekDatesMetrics, setWeekDatesMetrics] = useState({
         selectedDate: null,
         year: null,
@@ -154,9 +154,10 @@ function Attendance() {
                     type="number"
                     name="empId"
                     placeholder="Employee Id"
-                    value={empId}
+                    value={945065}
+                    readonly
                     onChange={(e) => {
-                        setEmpId(e.target.value)
+                        // setEmpId(e.target.value)
                         // getAttendanceDayWise()
                     }} />
             </div>
@@ -187,7 +188,7 @@ function Attendance() {
                         const currentDateAndTime = await findCurrentDateAndTime()
                         submitAttendance(currentDateAndTime)
                         setAttendanceDates([]) // reset attendanceDates to empty array
-                    }}>Submit</button>
+                    }}>Confirm & Submit</button>
             </div>
         </div>
 

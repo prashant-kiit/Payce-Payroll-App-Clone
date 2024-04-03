@@ -38,7 +38,7 @@ function WeekDates({
             console.log('weekDate = ' + weekDate)
             weekDateDivsTemp.push((
                 <div key={"keyDiv" + weekDate}>
-                    Week-Date {' '} {weekDate} {' '} {weekdaysNumericRep[dayIndex]} 
+                    Week-Date {' '} {weekDate} {' '} {weekdaysNumericRep[dayIndex]}
                     {' '}
                     <label key={"keyLabelHours" + weekDate} htmlFor={"labelHours" + weekDate}>Work-Hours</label>
                     {' '}
@@ -46,24 +46,45 @@ function WeekDates({
                         key={"keyInputHours" + weekDate}
                         type="number"
                         name={"labelHours" + weekDate}
+                        value = {!(attendanceDates[weekDate] === undefined) ? attendanceDates[weekDate] : ''}
                         onChange={(e) => {
-                            console.log(e.target.value)
-                            const attendanceDatesTemp = attendanceDates
-                            attendanceDatesTemp[weekDate] = e.target.value
-                            onAttendanceDatesChange(attendanceDatesTemp)
                             console.log(weekDate)
+                            console.log(e.target.value)
+                            if (e.target.value >= 1) {
+                                const attendanceDatesTemp = attendanceDates
+                                attendanceDatesTemp[weekDate] = Number(e.target.value)
+                                onAttendanceDatesChange(attendanceDatesTemp)
+                            } else if (e.target.value === '') {
+                                const attendanceDatesTemp = attendanceDates
+                                delete attendanceDatesTemp[weekDate]
+                                onAttendanceDatesChange(attendanceDatesTemp)
+                            } else {
+                                e.target.value = ''
+                            }
                             console.log(attendanceDates)
                         }} />
-                    {/* {' '}
-                    <label key={"keyLabelTick" + weekDate} htmlFor={"labelTick" + weekDate}>Confirm</label>
+                    {' '}
+                    {/* <label key={"keyLabelTick" + weekDate} htmlFor={"labelTick" + weekDate}>Leave = Zero Work Hour</label>
                     {' '}
                     <input
                         key={"keyInputTick" + weekDate}
                         type="checkbox"
                         name={"labelTick" + weekDate}
                         onChange={(e) => {
-                            
+
                         }} /> */}
+                    {/* <button
+                        key={"keyInputTick" + weekDate}
+                        name={"labelTick" + weekDate}
+                        onClick={() => {
+                            const attendanceDatesTemp = attendanceDates
+                            attendanceDatesTemp[weekDate] = '0'
+                            onAttendanceDatesChange(attendanceDatesTemp)
+                            console.log(weekDate)
+                            console.log(attendanceDates)
+                        }}>
+                        Click if you were on Leave on this Day
+                    </button> */}
                 </div>
             ))
             dayIndex = (++dayIndex) % 7
