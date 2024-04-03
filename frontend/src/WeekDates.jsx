@@ -48,6 +48,7 @@ function WeekDates({
                         type="number"
                         name={"labelHours" + weekDate}
                         value={attendanceDates[weekDate] ?? attendanceDatesCurrentSessionHistory[weekDate]}
+                        disabled={!!attendanceDatesCurrentSessionHistory[weekDate] ? true : false}
                         onChange={(e) => {
                             // console.log(weekDate)
                             // console.log(e.target.value)
