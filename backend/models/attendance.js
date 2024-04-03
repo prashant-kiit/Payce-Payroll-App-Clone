@@ -3,6 +3,7 @@ const Schema = _Schema;
 
 const AttendanceSchema = new Schema({
     empId: Number,
+    submissionDateAndTime: String,
     attendanceDates: Object,
 });
 

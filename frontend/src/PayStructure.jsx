@@ -12,7 +12,7 @@ function PayStructure() {
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8'
                 },
-                body: JSON.stringify({unitId: unitId, componentStatus: componentStatus})
+                body: JSON.stringify({ unitId: unitId, componentStatus: componentStatus })
             })
 
             console.log(response)
@@ -34,6 +34,11 @@ function PayStructure() {
                 'Content-Type': 'application/json; charset=UTF-8'
             },
         })
+
+        if (!response.ok) {
+            setStatus('Status : ' + response.status + ' - ' + response.statusText)
+            throw new Error(response.status + ' - ' + response.statusText)
+        }
 
         const data = await response.json()
         console.log('data')
@@ -63,8 +68,8 @@ function PayStructure() {
                 <div>
                     {Object.keys(componentStatus).map((component, index) => {
                         return (
-                            <div key = {'div' + index}>
-                                <label key = {'lable' + index} name={component}>{component}</label>
+                            <div key={'div' + index}>
+                                <label key={'lable' + index} name={component}>{component}</label>
                                 <input
                                     type="checkbox"
                                     key={'input' + index}

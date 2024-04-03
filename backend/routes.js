@@ -169,10 +169,13 @@ const getSalary = async (req) => {
     return _salary;
 }
 
+let attendancePerMonthCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
 router.put('/attendance', async (req, res) => {
     try {
         const attendance = new Attendance({
             empId: req.body.empId,
+            submissionDateAndTime: req.body.submissionDateAndTime,
             attendanceDates: req.body.attendanceDates
         })
 
@@ -181,14 +184,24 @@ router.put('/attendance', async (req, res) => {
         console.log(attendanceModified);
         delete attendanceModified._id;
         console.log(attendanceModified);
-        console.log(attendance);
 
+        // attendancePerMonth
+        // console.log(new Date(Object.keys(attendance.attendanceDates)[0]))
+        // console.log(new Date(Object.keys(attendance.attendanceDates)[0]))
+
+
+        console.log(attendance._doc);
         await Attendance.findOneAndUpdate(
-            { empId: attendance.empId },
+            {
+                empId: attendance.empId,
+                submissionDateAndTime: attendance.submissionDateAndTime
+            }
+            ,
             attendanceModified,
             { upsert: true, new: true }
         );
-        
+        console.log(attendance._doc);
+
         res.status(200).send();
     } catch (err) {
         console.log('Server-Error');
@@ -198,9 +211,15 @@ router.put('/attendance', async (req, res) => {
 });
 
 
-router.put('/empAttend', (req, res) => {
+router.get('/attendance/:empId', async (req, res) => {
     try {
-        console.log(req.body);
+        console.log(req.params.empId);
+        const attendanceDayWiseEmpId = await Attendance.find({ id: req.params.id });
+
+        for (let i = 0; i < attendanceDayWiseEmpId.length; i++) {
+            console.log(attendanceDayWiseEmpId[i].attendanceDates);
+        }
+
         res.status(200).send();
     } catch (err) {
         console.log('Server-Error');

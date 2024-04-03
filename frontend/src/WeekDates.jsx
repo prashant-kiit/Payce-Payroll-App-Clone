@@ -33,12 +33,13 @@ function WeekDates({
         let weekDateDivsTemp = []
         let dayIndex = startDayIndex
         for (let weekDay = weekStartDay; weekDay <= weekEndDay; weekDay++) {
-            console.log('weekDate = ' + weekDay + '/' + month + '/' + year)
             console.log('Day = ' + weekdaysNumericRep[dayIndex])
-            const weekDate = weekDay + '/' + month + '/' + year
+            const weekDate = year + '-' + (month.toString().length === 1 ? '0' + month : month) + '-' + (weekDay.toString().length === 1 ? '0' + weekDay : weekDay)
+            console.log('weekDate = ' + weekDate)
             weekDateDivsTemp.push((
                 <div key={"keyDiv" + weekDate}>
-                    Week-Date {' '} {weekDate} {' '} {weekdaysNumericRep[dayIndex]} {' '}
+                    Week-Date {' '} {weekDate} {' '} {weekdaysNumericRep[dayIndex]} 
+                    {' '}
                     <label key={"keyLabelHours" + weekDate} htmlFor={"labelHours" + weekDate}>Work-Hours</label>
                     {' '}
                     <input
@@ -53,6 +54,16 @@ function WeekDates({
                             console.log(weekDate)
                             console.log(attendanceDates)
                         }} />
+                    {/* {' '}
+                    <label key={"keyLabelTick" + weekDate} htmlFor={"labelTick" + weekDate}>Confirm</label>
+                    {' '}
+                    <input
+                        key={"keyInputTick" + weekDate}
+                        type="checkbox"
+                        name={"labelTick" + weekDate}
+                        onChange={(e) => {
+                            
+                        }} /> */}
                 </div>
             ))
             dayIndex = (++dayIndex) % 7

@@ -13,8 +13,8 @@ function Attendance() {
         weekEndDay: null,
         startDayIndex: null,
     })
-
     const [attendanceDates, setAttendanceDates] = useState({})
+    const [attendanceDayWise, setAttendanceDayWise] = useState({})
 
     const daysPerMonth = [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
@@ -79,17 +79,32 @@ function Attendance() {
         console.log('Metrics : ' + JSON.stringify(weekDatesMetrics))
     })
 
+    const findCurrentDateAndTime = async() => {
+        const currentDateTimeStamp = new Date()
+        const year = currentDateTimeStamp.getFullYear()
+        const month = String(currentDateTimeStamp.getMonth() + 1).padStart(2, '0')
+        const day = String(currentDateTimeStamp.getDate()).padStart(2, '0')
+        const hours = String(currentDateTimeStamp.getHours()).padStart(2, '0')
+        const minutes = String(currentDateTimeStamp.getMinutes()).padStart(2, '0')
+        const seconds = String(currentDateTimeStamp.getSeconds()).padStart(2, '0')
+        const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        console.log('currentDateAndTime = ' + formattedDateTime)
+        return formattedDateTime
+    }
 
-    const submitAttendance = async () => {
+    const submitAttendance = async (currentDateAndTime) => {
         try {
-            console.log('Send Message = ' + JSON.stringify({ empId: empId, attendanceDates: attendanceDates }))
+
+            // await findCurrentDateAndTime()
+
+            console.log('Send Message = ' + JSON.stringify({ empId: empId, submissionDateAndTime: currentDateAndTime, attendanceDates: attendanceDates }))
 
             const response = await fetch('http://127.0.0.1:3000/app/attendance', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8'
                 },
-                body: JSON.stringify({ empId: empId, attendanceDates: attendanceDates })
+                body: JSON.stringify({ empId: empId, submissionDateAndTime: currentDateAndTime, attendanceDates: attendanceDates })
             })
 
             console.log(response)
@@ -101,6 +116,30 @@ function Attendance() {
         } catch (err) {
             console.log('Client-Error')
             console.log(err)
+        }
+    }
+
+    const getAttendanceDayWise = async () => {
+        try {
+            const response = await fetch(`http://127.0.0.1:3000/app/attendance/${empId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8'
+                },
+            })
+
+            if (!response.ok) {
+                setStatus('Status : ' + response.status + ' - ' + response.statusText)
+                throw new Error(response.status + ' - ' + response.statusText)
+            }
+
+            const data = await response.json()
+            console.log('data')
+            console.log(data)
+            
+            setAttendanceDayWise(data)
+        } catch (err) {
+
         }
     }
 
@@ -118,6 +157,7 @@ function Attendance() {
                     value={empId}
                     onChange={(e) => {
                         setEmpId(e.target.value)
+                        // getAttendanceDayWise()
                     }} />
             </div>
             <div>
@@ -143,8 +183,10 @@ function Attendance() {
             <div>
                 <button
                     name="submit-attendance"
-                    onClick={() => {
-                        submitAttendance()
+                    onClick={async () => {
+                        const currentDateAndTime = await findCurrentDateAndTime()
+                        submitAttendance(currentDateAndTime)
+                        setAttendanceDates([]) // reset attendanceDates to empty array
                     }}>Submit</button>
             </div>
         </div>
