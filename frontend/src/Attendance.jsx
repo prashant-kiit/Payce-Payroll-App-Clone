@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import Calendar from 'react-calendar'
-import WeekDates from './WeekDates.jsx'
+import WeekDatesContainer from './WeekDatesContainer.jsx'
 // import 'react-calendar/dist/Calendar.css'
 
 function Attendance() {
@@ -13,8 +13,8 @@ function Attendance() {
         weekEndDay: null,
         startDayIndex: null,
     })
-
-    const [attendanceDayWise, setAttendanceDayWise] = useState({})
+    const [attendanceDatesLockedList, setAttendanceDatesLockedList] = useState({})
+    const [isLockForSubmittedAttendanceButtonDisabled, setIsLockForSubmittedAttendanceButtonDisabled] = useState(false)
 
     const daysPerMonth = [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
@@ -44,7 +44,8 @@ function Attendance() {
         let weekStartDay = 0
         let weekEndDay = 0
         const monthWiseStartAndEndWeekDaysMatrix = getMonthWiseStartAndEndWeekDaysMatrix(month, year)
-        for (let i = 0; i < getMonthWiseStartAndEndWeekDaysMatrix.length; i++) {
+        // console.log(monthWiseStartAndEndWeekDaysMatrix)
+        for (let i = 0; i < monthWiseStartAndEndWeekDaysMatrix.length; i++) {
             // console.log(monthWiseStartAndEndWeekDaysMatrix[i])
             const weekDayRange = monthWiseStartAndEndWeekDaysMatrix[i]
             if (day >= weekDayRange[0] && day <= weekDayRange[1]) {
@@ -53,6 +54,7 @@ function Attendance() {
                 break
             }
         }
+        console.log([weekStartDay, weekEndDay])
         return [weekStartDay, weekEndDay]
     })
 
@@ -64,7 +66,7 @@ function Attendance() {
         const [weekStartDay, weekEndDay] = getStartAndEndWeekDay(year, month, day)
         const startDayIndex = new Date(year, month, weekStartDay).getDay()
 
-        const weekDatesMetricsTemp = {
+        let weekDatesMetricsTemp = {} = {
             selectedDate: selectedDate,
             year: year,
             month: month + 1,
@@ -76,31 +78,57 @@ function Attendance() {
         setWeekDatesMetrics(weekDatesMetricsTemp)
 
         // console.log('selectedDate = ' + selectedDate)
+        // console.log('date parts = ' + day)
         // console.log('Metrics : ' + JSON.stringify(weekDatesMetrics))
     })
 
-    const getAttendanceDayWise = async () => {
+    const findCurrentDateAndTime = async () => {
+        const currentDateTimeStamp = new Date()
+        const year = currentDateTimeStamp.getFullYear()
+        const month = String(currentDateTimeStamp.getMonth() + 1).padStart(2, '0')
+        const day = String(currentDateTimeStamp.getDate()).padStart(2, '0')
+        const hours = String(currentDateTimeStamp.getHours()).padStart(2, '0')
+        const minutes = String(currentDateTimeStamp.getMinutes()).padStart(2, '0')
+        const seconds = String(currentDateTimeStamp.getSeconds()).padStart(2, '0')
+        const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        // console.log('currentDateAndTime = ' + formattedDateTime)
+        return formattedDateTime
+    }
+
+    const submitAttendance = async (currentDateAndTime) => {
         try {
-            const response = await fetch(`http://127.0.0.1:3000/app/attendance/${empId}`, {
-                method: 'GET',
+            console.log('Send Message = ' + JSON.stringify({
+                empId: 935065,
+                submissionDateAndTime: currentDateAndTime,
+                attendanceDates: attendanceDatesLockedList
+            }))
+
+            const response = await fetch('http://127.0.0.1:3000/app/attendance', {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8'
                 },
+                body: JSON.stringify({
+                    empId: 935065,
+                    submissionDateAndTime: currentDateAndTime,
+                    attendanceDates: attendanceDatesLockedList
+                })
             })
+
+            console.log(response)
 
             if (!response.ok) {
                 setStatus('Status : ' + response.status + ' - ' + response.statusText)
                 throw new Error(response.status + ' - ' + response.statusText)
             }
-
-            const data = await response.json()
-            console.log('data')
-            console.log(data)
-
-            setAttendanceDayWise(data)
         } catch (err) {
-
+            console.log('Client-Error')
+            console.log(err)
         }
+    }
+
+    const foo = async (isLockForSubmittedAttendanceButtonDisabled) => {
+        setIsLockForSubmittedAttendanceButtonDisabled(!isLockForSubmittedAttendanceButtonDisabled)
     }
 
     return (
@@ -128,13 +156,30 @@ function Attendance() {
                     }} />
             </div>
             <div>
-                <WeekDates
-                    empId={935065}
+                <WeekDatesContainer
                     year={weekDatesMetrics.year}
                     month={weekDatesMetrics.month}
                     weekStartDay={weekDatesMetrics.weekStartDay}
                     weekEndDay={weekDatesMetrics.weekEndDay}
-                    startDayIndex={weekDatesMetrics.startDayIndex} />
+                    startDayIndex={weekDatesMetrics.startDayIndex}
+                    attendanceDatesLockedList={attendanceDatesLockedList}
+                    onAttendanceDatesLockedListChange={(attendanceDatesLockedList) => {
+                        setAttendanceDatesLockedList(attendanceDatesLockedList)
+                    }}
+                    isLockForSubmittedAttendanceButtonDisabled={isLockForSubmittedAttendanceButtonDisabled}
+                    onIsLockForSubmittedAttendanceButtonDisabledChange={(isLockForSubmittedAttendanceButtonDisabled) => {
+                        setIsLockForSubmittedAttendanceButtonDisabled(isLockForSubmittedAttendanceButtonDisabled)
+                    }} />
+            </div>
+            <div>
+                <button
+                    name="submit-attendance-button"
+                    onClick={async () => {
+                        const currentDateAndTime = await findCurrentDateAndTime()
+                        await foo(isLockForSubmittedAttendanceButtonDisabled)
+                        submitAttendance(currentDateAndTime)
+                        // setAttendanceDatesLockedList([])
+                    }}>Confirm & Submit</button>
             </div>
         </div>
 
@@ -142,21 +187,3 @@ function Attendance() {
 }
 
 export default Attendance
-
-// if (day % 7 === 0)
-//     weekStartDay = (Math.floor(day / 7) - 1) * 7 + 1
-// else
-//     weekStartDay = Math.floor(day / 7) * 7 + 1
-
-// if (weekStartDay === 29) {
-//     if (!isLeapYear(year) && month === 2)
-//         weekEndDay = weekStartDay + 0
-//     if (isLeapYear(year) && month === 2)
-//         weekEndDay = weekStartDay + 0
-//     if (daysPerMonth[month] === 30)
-//         weekEndDay = weekStartDay + 1
-//     if (daysPerMonth[month] === 31)
-//         weekEndDay = weekStartDay + 2
-// }
-// else
-//     weekEndDay = weekStartDay + 6
