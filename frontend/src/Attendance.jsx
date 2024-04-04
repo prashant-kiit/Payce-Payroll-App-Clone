@@ -1,4 +1,4 @@
-import { useState, useCallback, } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import Calendar from 'react-calendar'
 import WeekDates from './WeekDates.jsx'
 // import 'react-calendar/dist/Calendar.css'
@@ -13,8 +13,7 @@ function Attendance() {
         weekEndDay: null,
         startDayIndex: null,
     })
-    const [attendanceDates, setAttendanceDates] = useState({})
-    const [attendanceDatesCurrentSessionHistory, setAttendanceDatesCurrentSessionHistory] = useState({})
+
     const [attendanceDayWise, setAttendanceDayWise] = useState({})
 
     const daysPerMonth = [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -28,7 +27,7 @@ function Attendance() {
         return 1 + 7 - firstDayOfMonth.getDay()
     })
 
-    const getMonthWisegetStartAndEndWeekDayAndEndWeekDaysMatrix = useCallback((month, year) => {
+    const getMonthWiseStartAndEndWeekDaysMatrix = useCallback((month, year) => {
         const firstSunDay = getFirstSunDay(year, month)
         const isLeapYear = checkLeapYear(year)
         const daysInMonth = daysPerMonth[month]
@@ -37,17 +36,17 @@ function Attendance() {
         [firstSunDay + 8, firstSunDay + 14],
         [firstSunDay + 15, firstSunDay + 21],
         [firstSunDay + 22, month === 1 ? (isLeapYear ? 29 : 28) : daysInMonth]]
-        console.log(matrix)
+        // console.log(matrix)
         return matrix
     })
 
     const getStartAndEndWeekDay = useCallback((year, month, day) => {
         let weekStartDay = 0
         let weekEndDay = 0
-        const monthWisegetStartAndEndWeekDayAndEndWeekDaysMatrix = getMonthWisegetStartAndEndWeekDayAndEndWeekDaysMatrix(month, year)
-        for (let i = 0; i < monthWisegetStartAndEndWeekDayAndEndWeekDaysMatrix.length; i++) {
-            console.log(monthWisegetStartAndEndWeekDayAndEndWeekDaysMatrix[i])
-            const weekDayRange = monthWisegetStartAndEndWeekDayAndEndWeekDaysMatrix[i]
+        const monthWiseStartAndEndWeekDaysMatrix = getMonthWiseStartAndEndWeekDaysMatrix(month, year)
+        for (let i = 0; i < getMonthWiseStartAndEndWeekDaysMatrix.length; i++) {
+            // console.log(monthWiseStartAndEndWeekDaysMatrix[i])
+            const weekDayRange = monthWiseStartAndEndWeekDaysMatrix[i]
             if (day >= weekDayRange[0] && day <= weekDayRange[1]) {
                 weekStartDay = weekDayRange[0]
                 weekEndDay = weekDayRange[1]
@@ -76,49 +75,9 @@ function Attendance() {
 
         setWeekDatesMetrics(weekDatesMetricsTemp)
 
-        console.log('selectedDate = ' + selectedDate)
-        console.log('Metrics : ' + JSON.stringify(weekDatesMetrics))
+        // console.log('selectedDate = ' + selectedDate)
+        // console.log('Metrics : ' + JSON.stringify(weekDatesMetrics))
     })
-
-    const findCurrentDateAndTime = async() => {
-        const currentDateTimeStamp = new Date()
-        const year = currentDateTimeStamp.getFullYear()
-        const month = String(currentDateTimeStamp.getMonth() + 1).padStart(2, '0')
-        const day = String(currentDateTimeStamp.getDate()).padStart(2, '0')
-        const hours = String(currentDateTimeStamp.getHours()).padStart(2, '0')
-        const minutes = String(currentDateTimeStamp.getMinutes()).padStart(2, '0')
-        const seconds = String(currentDateTimeStamp.getSeconds()).padStart(2, '0')
-        const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        console.log('currentDateAndTime = ' + formattedDateTime)
-        return formattedDateTime
-    }
-
-    const submitAttendance = async (currentDateAndTime) => {
-        try {
-
-            // await findCurrentDateAndTime()
-
-            console.log('Send Message = ' + JSON.stringify({ empId: empId, submissionDateAndTime: currentDateAndTime, attendanceDates: attendanceDates }))
-
-            const response = await fetch('http://127.0.0.1:3000/app/attendance', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json; charset=UTF-8'
-                },
-                body: JSON.stringify({ empId: empId, submissionDateAndTime: currentDateAndTime, attendanceDates: attendanceDates })
-            })
-
-            console.log(response)
-
-            if (!response.ok) {
-                setStatus('Status : ' + response.status + ' - ' + response.statusText)
-                throw new Error(response.status + ' - ' + response.statusText)
-            }
-        } catch (err) {
-            console.log('Client-Error')
-            console.log(err)
-        }
-    }
 
     const getAttendanceDayWise = async () => {
         try {
@@ -137,7 +96,7 @@ function Attendance() {
             const data = await response.json()
             console.log('data')
             console.log(data)
-            
+
             setAttendanceDayWise(data)
         } catch (err) {
 
@@ -156,7 +115,7 @@ function Attendance() {
                     name="empId"
                     placeholder="Employee Id"
                     value={945065}
-                    readonly
+                    readOnly
                     onChange={(e) => {
                         // setEmpId(e.target.value)
                         // getAttendanceDayWise()
@@ -164,38 +123,18 @@ function Attendance() {
             </div>
             <div>
                 <Calendar
-                    // value={selectedDate}
                     onChange={(selectedDate) => {
                         setStartAndEndDatesOfSelectedWeek(selectedDate)
                     }} />
             </div>
             <div>
                 <WeekDates
+                    empId={935065}
                     year={weekDatesMetrics.year}
                     month={weekDatesMetrics.month}
                     weekStartDay={weekDatesMetrics.weekStartDay}
                     weekEndDay={weekDatesMetrics.weekEndDay}
-                    startDayIndex={weekDatesMetrics.startDayIndex}
-                    attendanceDates={attendanceDates}
-                    onAttendanceDatesChange={(attendanceDates) => {
-                        setAttendanceDates(attendanceDates)
-                    }}
-                    attendanceDatesCurrentSessionHistory = {attendanceDatesCurrentSessionHistory}
-                />
-            </div>
-            <div>
-                <button
-                    name="submit-attendance"
-                    onClick={async () => {
-                        const currentDateAndTime = await findCurrentDateAndTime()
-                        submitAttendance(currentDateAndTime)
-                        // insert latest submissions into the session history
-                        Object.assign(attendanceDatesCurrentSessionHistory, attendanceDates)
-                        // set Session History of submitted attendance dates
-                        setAttendanceDatesCurrentSessionHistory(attendanceDatesCurrentSessionHistory) 
-                        // reset attendanceDates to empty array
-                        setAttendanceDates([]) 
-                    }}>Confirm & Submit</button>
+                    startDayIndex={weekDatesMetrics.startDayIndex} />
             </div>
         </div>
 
