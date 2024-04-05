@@ -10,7 +10,11 @@ function WeekDatesContainer({
     attendanceDatesLockedList = null,
     onAttendanceDatesLockedListChange = null,
     isLockForSubmittedAttendanceButtonDisabled = null,
-    onIsLockForSubmittedAttendanceButtonDisabledChange = null, }) {
+    onIsLockForSubmittedAttendanceButtonDisabledChange = null,
+    attendanceDatesLockedSessionHistory = null,
+    onAttendanceDatesLockedSessionHistoryChange = null,
+    isLockSessionHistoryButtonDisabled = null,
+    onIsLockSessionHistoryButtonDisabledChange = null, }) {
 
     console.log('WeekDatesContainer running with Selected Date:________________________')
     console.log('weekStartDay = ' + weekStartDay)
@@ -21,15 +25,6 @@ function WeekDatesContainer({
     if (weekStartDay === null)
         return (<div></div>)
 
-    const [attendanceDates, setAttendanceDates] = useState({})
-
-    useEffect(() => {
-        setAttendanceDates([])
-    }, [year,
-        month,
-        weekStartDay,
-        weekEndDay,])
-
     return (
         <div>
             <WeekDatesCollection
@@ -38,14 +33,14 @@ function WeekDatesContainer({
                 weekStartDay={weekStartDay}
                 weekEndDay={weekEndDay}
                 startDayIndex={startDayIndex}
-                attendanceDates={attendanceDates}
-                onAttendanceDatesChange={(attendanceDates) => {
-                    setAttendanceDates(attendanceDates)
-                }}
                 attendanceDatesLockedList={attendanceDatesLockedList}
                 onAttendanceDatesLockedListChange={onAttendanceDatesLockedListChange}
                 isLockForSubmittedAttendanceButtonDisabled={isLockForSubmittedAttendanceButtonDisabled}
-                onIsLockForSubmittedAttendanceButtonDisabledChange={onIsLockForSubmittedAttendanceButtonDisabledChange} />
+                onIsLockForSubmittedAttendanceButtonDisabledChange={onIsLockForSubmittedAttendanceButtonDisabledChange}
+                attendanceDatesLockedSessionHistory={attendanceDatesLockedSessionHistory}
+                onAttendanceDatesLockedSessionHistoryChange={onAttendanceDatesLockedSessionHistoryChange}
+                isLockSessionHistoryButtonDisabled={isLockSessionHistoryButtonDisabled}
+                onIsLockSessionHistoryButtonDisabledChange={onIsLockSessionHistoryButtonDisabledChange} />
         </div>
     )
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import Calendar from 'react-calendar'
 import WeekDatesContainer from './WeekDatesContainer.jsx'
 // import 'react-calendar/dist/Calendar.css'
@@ -14,7 +14,13 @@ function Attendance() {
         startDayIndex: null,
     })
     const [attendanceDatesLockedList, setAttendanceDatesLockedList] = useState({})
-    const [isLockForSubmittedAttendanceButtonDisabled, setIsLockForSubmittedAttendanceButtonDisabled] = useState(false)
+    const [isLockForSubmittedAttendanceButtonDisabled, setIsLockForSubmittedAttendanceButtonDisabled] = useState(undefined)
+    const [attendanceDatesLockedSessionHistory, setAttendanceDatesLockedSessionHistory] = useState({})
+    const [isLockSessionHistoryButtonDisabled, setIsLockSessionHistoryButtonDisabled] = useState(undefined)
+
+    useEffect(() => {
+        console.log('Use this for fetching------')
+    }, [])
 
     const daysPerMonth = [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
@@ -127,8 +133,30 @@ function Attendance() {
         }
     }
 
-    const foo = async (isLockForSubmittedAttendanceButtonDisabled) => {
-        setIsLockForSubmittedAttendanceButtonDisabled(!isLockForSubmittedAttendanceButtonDisabled)
+    const alterRoundLock = async (isLockForSubmittedAttendanceButtonDisabled) => {
+        console.log('Round Lock altered')
+        setIsLockForSubmittedAttendanceButtonDisabled(isLockForSubmittedAttendanceButtonDisabled)
+    }
+
+    const alterHistoryLock = async (isLockSessionHistoryButtonDisabled) => {
+        console.log('History Lock altered')
+        setIsLockSessionHistoryButtonDisabled(isLockSessionHistoryButtonDisabled)
+        console.log(isLockSessionHistoryButtonDisabled)
+    }
+
+    const fillLockedDateRound = async (attendanceDatesLockedList) => {
+        console.log('Round of Locked Attendances')
+        setAttendanceDatesLockedList(attendanceDatesLockedList)
+        console.log(attendanceDatesLockedList)
+    }
+
+    const fillLockedDateHistory = async (input) => {
+        console.log('History of Locked Attendances')
+        let temp = {}
+        Object.assign(temp, attendanceDatesLockedSessionHistory)
+        Object.assign(temp, input)
+        setAttendanceDatesLockedSessionHistory(temp)
+        console.log(temp)
     }
 
     return (
@@ -142,7 +170,7 @@ function Attendance() {
                     type="number"
                     name="empId"
                     placeholder="Employee Id"
-                    value={945065}
+                    value={935065}
                     readOnly
                     onChange={(e) => {
                         // setEmpId(e.target.value)
@@ -169,16 +197,25 @@ function Attendance() {
                     isLockForSubmittedAttendanceButtonDisabled={isLockForSubmittedAttendanceButtonDisabled}
                     onIsLockForSubmittedAttendanceButtonDisabledChange={(isLockForSubmittedAttendanceButtonDisabled) => {
                         setIsLockForSubmittedAttendanceButtonDisabled(isLockForSubmittedAttendanceButtonDisabled)
+                    }}
+                    attendanceDatesLockedSessionHistory={attendanceDatesLockedSessionHistory}
+                    onAttendanceDatesLockedSessionHistoryChange={(attendanceDatesLockedSessionHistory) => {
+                        setAttendanceDatesLockedSessionHistory(attendanceDatesLockedSessionHistory)
+                    }}
+                    isLockSessionHistoryButtonDisabled={isLockSessionHistoryButtonDisabled}
+                    onIsLockSessionHistoryButtonDisabledChange={(isLockSessionHistoryButtonDisabled) => {
+                        setIsLockSessionHistoryButtonDisabled(isLockSessionHistoryButtonDisabled)
                     }} />
             </div>
             <div>
                 <button
                     name="submit-attendance-button"
                     onClick={async () => {
+                        await fillLockedDateHistory(attendanceDatesLockedList)
+                        await alterHistoryLock(!isLockSessionHistoryButtonDisabled)
                         const currentDateAndTime = await findCurrentDateAndTime()
-                        await foo(isLockForSubmittedAttendanceButtonDisabled)
-                        submitAttendance(currentDateAndTime)
-                        // setAttendanceDatesLockedList([])
+                        await submitAttendance(currentDateAndTime)
+                        await fillLockedDateRound({})
                     }}>Confirm & Submit</button>
             </div>
         </div>

@@ -20,7 +20,7 @@ router.post('/unit', async (req, res) => {
         console.log(unit);
 
         await unit.save();
-        res.status(404).send();
+        res.status(200).send();
     }
     catch (err) {
         console.log('Server-Error');
@@ -179,29 +179,7 @@ router.put('/attendance', async (req, res) => {
             attendanceDates: req.body.attendanceDates
         })
 
-        let attendanceModified = {};
-        attendanceModified = Object.assign(attendanceModified, attendance._doc);
-        console.log(attendanceModified);
-        delete attendanceModified._id;
-        console.log(attendanceModified);
-
-        // attendancePerMonth
-        // console.log(new Date(Object.keys(attendance.attendanceDates)[0]))
-        // console.log(new Date(Object.keys(attendance.attendanceDates)[0]))
-
-
-        console.log(attendance._doc);
-        await Attendance.findOneAndUpdate(
-            {
-                empId: attendance.empId,
-                submissionDateAndTime: attendance.submissionDateAndTime
-            }
-            ,
-            attendanceModified,
-            { upsert: true, new: true }
-        );
-        console.log(attendance._doc);
-
+        await attendance.save()
         res.status(200).send();
     } catch (err) {
         console.log('Server-Error');

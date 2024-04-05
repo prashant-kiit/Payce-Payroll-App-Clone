@@ -7,12 +7,14 @@ function WeekDatesCollection({
     weekStartDay = null,
     weekEndDay = null,
     startDayIndex = null,
-    attendanceDates = null,
-    onAttendanceDatesChange = null,
     attendanceDatesLockedList = null,
     onAttendanceDatesLockedListChange = null,
     isLockForSubmittedAttendanceButtonDisabled = null,
-    onIsLockForSubmittedAttendanceButtonDisabledChange = null, }) {
+    onIsLockForSubmittedAttendanceButtonDisabledChange = null, 
+    attendanceDatesLockedSessionHistory = null,
+    onAttendanceDatesLockedSessionHistoryChange = null,
+    isLockSessionHistoryButtonDisabled = null,
+    onIsLockSessionHistoryButtonDisabledChange = null, }) {
 
     console.log('WeekDatesCollection running _______________')
 
@@ -29,12 +31,15 @@ function WeekDatesCollection({
                 key={"keyWorkHours" + weekDate}
                 weekDate={weekDate}
                 dayIndex={dayIndex}
-                attendanceDates={attendanceDates}
-                onAttendanceDatesChange={onAttendanceDatesChange}
                 attendanceDatesLockedList={attendanceDatesLockedList}
                 onAttendanceDatesLockedListChange={onAttendanceDatesLockedListChange}
                 isLockForSubmittedAttendanceButtonDisabled={isLockForSubmittedAttendanceButtonDisabled}
-                onIsLockForSubmittedAttendanceButtonDisabledChange={onIsLockForSubmittedAttendanceButtonDisabledChange} />))
+                onIsLockForSubmittedAttendanceButtonDisabledChange={onIsLockForSubmittedAttendanceButtonDisabledChange} 
+                attendanceDatesLockedSessionHistory={attendanceDatesLockedSessionHistory}
+                onAttendanceDatesLockedSessionHistoryChange={onAttendanceDatesLockedSessionHistoryChange}
+                isLockSessionHistoryButtonDisabled={isLockSessionHistoryButtonDisabled}
+                onIsLockSessionHistoryButtonDisabledChange={onIsLockSessionHistoryButtonDisabledChange}/>))
+
         dayIndex = (++dayIndex) % 7
     }
 
