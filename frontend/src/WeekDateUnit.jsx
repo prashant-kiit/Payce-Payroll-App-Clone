@@ -8,12 +8,11 @@ function WeekDateUnit({
     attendanceDatesLockedList = null,
     onAttendanceDatesLockedListChange = null,
     isLockForSubmittedAttendanceButtonDisabled = null,
-    onIsLockForSubmittedAttendanceButtonDisabledChange = null,
-}) {
+    onIsLockForSubmittedAttendanceButtonDisabledChange = null, }) {
     console.log('WeekDateUnit running_______________________')
 
-    const [workHours, setWorkHours] = useState(0)
-    const [isAttendanceLocked, setIsAttendanceLocked] = useState(false)
+    const [workHours, setWorkHours] = useState(undefined)
+    const [isAttendanceLocked, setIsAttendanceLocked] = useState(undefined)
 
     const weekdaysNumericRep = ['Sun', 'Mon', 'Tue', 'Wed', 'Thru', 'Fri', 'Sat']
 
@@ -34,50 +33,64 @@ function WeekDateUnit({
             {' '}
             <input
                 key={"keyInputHours" + weekDate}
-                type="number"
                 name={"labelHours" + weekDate}
-                value={workHours == 0 ? attendanceDatesLockedList[weekDate] : workHours}
-                disabled={!isAttendanceLocked ? attendanceDatesLockedList[weekDate] : isAttendanceLocked}
-                onChange={(e) => {
-                    console.log(e.target.value)
-                    if (e.target.value >= 0)
+                value={workHours ?? attendanceDatesLockedList[weekDate]} // workhours = ('') or num >=0 
+                disabled={!!(isAttendanceLocked ?? attendanceDatesLockedList[weekDate])} // isAttendanceLocked = (undefined) or true or false
+                onChange={async (e) => {
+                    console.log('Input  = ' + e.target.value)
+                    if (typeof Number(e.target.value) === 'number'
+                        && !isNaN(Number(e.target.value))
+                        && Number(e.target.value) >= 0) {
+                        console.log('Input is Number and More than or equal to 0')
                         setWorkHours(e.target.value)
+                        console.log('Work Hours  = ' + e.target.value)
+                    }
+                    else if (e.target.value === '') {
+                        setWorkHours('')
+                    }
+                    else {
+                        setWorkHours('')
+                        alert('Input is either not Number or Less than 0')
+                    }
                 }} />
             {' '}
             <button
                 name="lock-button"
-                disabled={isAttendanceLocked && isLockForSubmittedAttendanceButtonDisabled ? true : false}
+                disabled={(!!attendanceDatesLockedList[weekDate] && isLockForSubmittedAttendanceButtonDisabled) ? true : false}
                 onClick={async () => {
-                    console.log('Lock/Unlock Clicked')
-                    console.log(attendanceDatesLockedList[weekDate])
-                    let temp = {}
-                    Object.assign(temp, attendanceDatesLockedList)
-                    if (workHours === 0) {
-                        console.log('Workhours Input is in Locked State')
-                        setWorkHours(temp[weekDate])
-                        delete temp[weekDate]
-                        await callLockers(isAttendanceLocked, temp)
+                    console.log('Lock/Unlock Clicked = ')
+                    console.log('Work Hours = ' + workHours)
+                    console.log('Is Attendance Locked = ' + isAttendanceLocked)
+                    console.log('Attendance Dates Locked List [weekDate] = ' + attendanceDatesLockedList[weekDate])
+                    console.log('Cond 1 = ' + !(workHours ?? attendanceDatesLockedList[weekDate]))
+                    console.log('Cond 2 = ' + !(isAttendanceLocked ?? attendanceDatesLockedList[weekDate]))
+                    console.log('Cond 3 = ' + !!(isAttendanceLocked ?? attendanceDatesLockedList[weekDate]))
+                    if (!(workHours ?? attendanceDatesLockedList[weekDate])) {
+                        alert('Invalid Input. Cannot be locked or Unlocked')
                     }
-                    else if (attendanceDatesLockedList[weekDate] > 0) {
-                        console.log('Workhours Input is in Locked State')
-                        setWorkHours(temp[weekDate])
-                        delete temp[weekDate]
-                        await callLockers(isAttendanceLocked, temp)
-                    }
-                    else if (workHours > 0) {
-                        console.log('Workhours are filled')
-                        console.log(workHours)
-                        if (!isAttendanceLocked) {
-                            console.log('Workhours Input is in Unlocked State')
-                            temp[weekDate] = workHours
+                    else if (typeof Number(workHours ?? attendanceDatesLockedList[weekDate]) === 'number'
+                        && !isNaN(Number(workHours ?? attendanceDatesLockedList[weekDate]))
+                        && Number(workHours ?? attendanceDatesLockedList[weekDate]) >= 0) {
+                        console.log('Valid Input. Can be Locked or Unlocked')
+                        let temp = {}
+                        if (!(isAttendanceLocked ?? attendanceDatesLockedList[weekDate])) {
+                            setIsAttendanceLocked(!(isAttendanceLocked ?? attendanceDatesLockedList[weekDate]))
+                            Object.assign(temp, attendanceDatesLockedList)
+                            temp[weekDate] = workHours ?? attendanceDatesLockedList[weekDate]
+                            onAttendanceDatesLockedListChange(temp)
+                            console.log('Got Locked')
                         }
-                        else {
-                            console.log('Workhours Input is in Locked State')
+                        else if (!!(isAttendanceLocked ?? attendanceDatesLockedList[weekDate])) {
+                            setIsAttendanceLocked(!(isAttendanceLocked ?? attendanceDatesLockedList[weekDate]))
+                            Object.assign(temp, attendanceDatesLockedList)
+                            setWorkHours(temp[weekDate])
                             delete temp[weekDate]
+                            onAttendanceDatesLockedListChange(temp)
+                            console.log('Got Unlocked')
                         }
-                        await callLockers(isAttendanceLocked, temp)
+                        console.log('Locked List')
+                        console.log(temp)
                     }
-                    console.log(temp)
                 }}>
                 Lock/Unlock
             </button>
