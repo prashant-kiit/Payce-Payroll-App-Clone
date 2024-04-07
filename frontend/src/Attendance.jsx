@@ -4,7 +4,7 @@ import WeekDatesContainer from "./WeekDatesContainer.jsx";
 // import 'react-calendar/dist/Calendar.css'
 
 function Attendance() {
-  const [empId, setEmpId] = useState(935065);
+  const [empId, setEmpId] = useState(896785);
   const [weekDatesMetrics, setWeekDatesMetrics] = useState({
     selectedDate: null,
     year: null,
@@ -31,7 +31,7 @@ function Attendance() {
   const [previousSessionAttendanceData, setPreviousSessionAttendanceData] =
     useState({});
   useEffect(async () => {
-    getPreviousSessionAttendanceData();
+    await getPreviousSessionAttendanceData();
   }, []);
 
   const daysPerMonth = [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -63,6 +63,10 @@ function Attendance() {
   const getStartAndEndWeekDay = useCallback((year, month, day) => {
     let weekStartDay = 0;
     let weekEndDay = 0;
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+    const currentDay = currentDate.getDate();
     const monthWiseStartAndEndWeekDaysMatrix =
       getMonthWiseStartAndEndWeekDaysMatrix(month, year);
     // console.log(monthWiseStartAndEndWeekDaysMatrix)
@@ -71,7 +75,11 @@ function Attendance() {
       const weekDayRange = monthWiseStartAndEndWeekDaysMatrix[i];
       if (day >= weekDayRange[0] && day <= weekDayRange[1]) {
         weekStartDay = weekDayRange[0];
-        weekEndDay = weekDayRange[1];
+        weekEndDay =
+          year === currentYear && month === currentMonth
+            ? Math.min(weekDayRange[1], currentDay)
+            : weekDayRange[1];
+        // weekEndDay = weekDayRange[1];
         break;
       }
     }
@@ -153,10 +161,8 @@ function Attendance() {
 
   const getPreviousSessionAttendanceData = async () => {
     try {
-      console.log("Use this for fetching------");
-
       const response = await fetch(
-        `http://127.0.0.1:3000/app/attendance/${935065}`,
+        `http://127.0.0.1:3000/app/attendance/${empId}`,
         {
           method: "GET",
           headers: {
@@ -171,7 +177,7 @@ function Attendance() {
       }
 
       const data = await response.json();
-      console.log("data");
+      console.log("Session History Fetched Data");
       console.log(data);
       setPreviousSessionAttendanceData(data);
     } catch (err) {
@@ -228,8 +234,14 @@ function Attendance() {
       </div>
       <div>
         <Calendar
-          onChange={(selectedDate) => {
-            setStartAndEndDatesOfSelectedWeek(selectedDate);
+          onChange={(date) => {
+            const currentDate = new Date();
+            const selectedDate = new Date(date);
+            if (selectedDate <= currentDate) {
+              setStartAndEndDatesOfSelectedWeek(date);
+            } else {
+              alert("Future Date cannot open");
+            }
           }}
         />
       </div>
@@ -274,7 +286,7 @@ function Attendance() {
               isLockSessionHistoryButtonDisabled
             );
           }}
-          previousSessionAttendanceData = {previousSessionAttendanceData}
+          previousSessionAttendanceData={previousSessionAttendanceData}
         />
       </div>
       <div>

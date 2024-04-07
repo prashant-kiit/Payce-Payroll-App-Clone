@@ -15,7 +15,7 @@ await dbconnect();
 
 server.listen(port, hostname, () => {
     try {
-        console.log(`Web Server running at http://${hostname}:${port}/`);
+        console.log(`Web Server running at http://${hostname}:${port}/app`);
     } catch (err) {
         console.log('Error : ' + err);
     }

@@ -4,7 +4,7 @@ import Employee from "./models/employee.js";
 import PayStructure from "./models/payStructure.js";
 import Components from "./data/components.js";
 import Attendance from "./models/attendance.js";
-import { pushMessage } from "./messageQueue";
+import { pushMessage } from "./messenger/messageQueue.js";
 
 const router = Router();
 
@@ -186,7 +186,6 @@ router.put("/attendance", async (req, res) => {
     res.send(err);
   }
   console.log("Message Queued");
-  await pushMessage("Daily Attendance Updated");
 });
 
 router.get("/attendance/:empId", async (req, res) => {
