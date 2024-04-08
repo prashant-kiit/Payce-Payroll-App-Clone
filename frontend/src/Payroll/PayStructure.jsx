@@ -1,9 +1,8 @@
-import { useState, useEffect, useId } from 'react'
+import { useState, useEffect } from 'react'
 
 function PayStructure() {
     const [unitId, setUnitId] = useState(0)
     const [componentStatus, setComponentStatus] = useState({})
-    const id = useId()
 
     const postPayStructure = async () => {
         try {

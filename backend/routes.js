@@ -1,27 +1,94 @@
 import { Router } from "express";
-import Unit from "./models/unit.js";
+import Organization from "./models/organization.js";
 import Employee from "./models/employee.js";
 import PayStructure from "./models/payStructure.js";
 import Components from "./data/components.js";
 import Attendance from "./models/attendance.js";
-import { pushMessage } from "./messenger/messageQueue.js";
+import Industry from "./models/industry.js";
+import Location from "./models/location.js";
+import DialCode from "./models/dailcode.js";
 
 const router = Router();
 
-router.post("/unit", async (req, res) => {
+router.post("/organization", async (req, res) => {
   try {
-    const unit = new Unit({
-      id: req.body.id,
+    const organization = new Organization({
       name: req.body.name,
-      task: req.body.task,
-      region: req.body.region,
-      currency: req.body.currency,
+      industry: req.body.industry,
+      location: req.body.location,
+      address: req.body.address,
+      dialCode: req.body.dialCode,
+      phone: req.body.phone,
+      email: req.body.email,
+      description: req.body.description,
     });
 
-    console.log(unit);
+    console.log(organization);
 
-    await unit.save();
+    await Organization.deleteMany({});
+    await organization.save();
+
     res.status(200).send();
+  } catch (err) {
+    console.log("Server-Error");
+    console.log(err);
+    res.send(err);
+  }
+});
+
+router.get("/organization", async (req, res) => {
+  try {
+    const organization = await Organization.find();
+
+    console.log("organization");
+    console.log(organization);
+
+    res.status(200).send(organization);
+  } catch (err) {
+    console.log("Server-Error");
+    console.log(err);
+    res.send(err);
+  }
+});
+
+router.get("/industrys", async (req, res) => {
+  try {
+    const industrys = await Industry.find();
+
+    console.log("industrys");
+    console.log(industrys);
+
+    res.status(200).send(industrys);
+  } catch (err) {
+    console.log("Server-Error");
+    console.log(err);
+    res.send(err);
+  }
+});
+
+router.get("/locations", async (req, res) => {
+  try {
+    const locations = await Location.find();
+
+    console.log("locations");
+    console.log(locations);
+
+    res.status(200).send(locations);
+  } catch (err) {
+    console.log("Server-Error");
+    console.log(err);
+    res.send(err);
+  }
+});
+
+router.get("/dialcodes", async (req, res) => {
+  try {
+    const dialcodes = await DialCode.find();
+
+    console.log("dial codes");
+    console.log(dialcodes);
+
+    res.status(200).send(dialcodes);
   } catch (err) {
     console.log("Server-Error");
     console.log(err);

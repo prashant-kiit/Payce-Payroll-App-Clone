@@ -1,12 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import Unit from './Unit.jsx'
-import Emp from './Emp.jsx'
-import PayStructure from './PayStructure.jsx'
-import Attendance from './Attendance.jsx'
+import Organization from './Payroll/Organization.jsx'
+import Emp from './Payroll/Emp.jsx'
+import PayStructure from './Payroll/PayStructure.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   //<React.StrictMode>
-    <Attendance />
+    <Organization />
   //</React.StrictMode>,
 )
