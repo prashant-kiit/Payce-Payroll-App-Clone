@@ -1,29 +1,35 @@
 import { useEffect, useState } from "react";
 
-function Organization() {
+function AddEmployee() {
+  const [empId, setEmpId] = useState("");
   const [name, setName] = useState("");
-  const [industry, setIndustry] = useState("");
+  const [education, setEducation] = useState("");
+  const [designation, setDesignation] = useState("");
+  const [doj, setDOJ] = useState("");
   const [location, setLocation] = useState("");
-  const [address, setAddress] = useState("");
+  const [department, setDepartment] = useState("");
   const [dialCode, setDialCode] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [description, setDescription] = useState("");
-  const [industrys, setIndustrys] = useState([]);
+  const [ctc, setCTC] = useState(0);
+  const [educations, setEducations] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [dialcodes, setDialCodes] = useState([]);
-  const [lock, setLock] = useState(true);
+  const [dialCodes, setDialCodes] = useState([]);
+  const [designations, setDesignations] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [lock, setLock] = useState(false);
 
-  useEffect(async () => {
-    await getIndustrys();
-    await getLocations();
-    await getDailCodes();
-    await getStoredOrganization();
+  useEffect(() => {
+    getEducations();
+    getDesignations();
+    getDepartments();
+    getDailCodes();
+    getLocations();
   }, []);
 
-  const getIndustrys = async () => {
+  const getEducations = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:3000/app/industrys", {
+      const response = await fetch("http://127.0.0.1:3000/app/qualifications", {
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=UTF-8",
@@ -38,7 +44,7 @@ function Organization() {
       const data = await response.json();
       console.log("data");
       console.log(data);
-      setIndustrys(data);
+      setEducations(data);
     } catch (error) {
       console.log("Client-Error");
       console.log(error);
@@ -93,9 +99,9 @@ function Organization() {
     }
   };
 
-  const getStoredOrganization = async () => {
+  const getDesignations = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:3000/app/organization", {
+      const response = await fetch("http://127.0.0.1:3000/app/designations", {
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=UTF-8",
@@ -110,36 +116,56 @@ function Organization() {
       const data = await response.json();
       console.log("data");
       console.log(data);
-      setName(data[0].name);
-      setIndustry(data[0].industry);
-      setLocation(data[0].location);
-      setAddress(data[0].address);
-      setDialCode(data[0].dialCode);
-      setPhone(data[0].phone);
-      setEmail(data[0].email);
-      setDescription(data[0].description);
+      setDesignations(data);
     } catch (error) {
       console.log("Client-Error");
       console.log(error);
     }
   };
 
-  const postOrganization = async () => {
+  const getDepartments = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:3000/app/organization", {
+      const response = await fetch("http://127.0.0.1:3000/app/departments", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+        },
+      });
+
+      if (!response.ok) {
+        alert("Status : " + response.status + " - " + response.statusText);
+        throw new Error(response.status + " - " + response.statusText);
+      }
+
+      const data = await response.json();
+      console.log("data");
+      console.log(data);
+      setDepartments(data);
+    } catch (error) {
+      console.log("Client-Error");
+      console.log(error);
+    }
+  };
+
+  const postEmployee = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:3000/app/employee", {
         method: "POST",
         headers: {
           "Content-Type": "application/json; charset=UTF-8",
         },
         body: JSON.stringify({
+          empId: empId,
           name: name,
-          industry: industry,
+          education: education,
+          designation: designation,
+          doj: doj,
           location: location,
-          address: address,
+          department: department,
           dialCode: dialCode,
           phone: phone,
           email: email,
-          description: description,
+          ctc: ctc,
         }),
       });
 
@@ -158,8 +184,20 @@ function Organization() {
   return (
     <>
       <h2>Payroll App</h2>
-      <p>ORGANIZATION PROFILE</p>
+      <p>ADD EMPLOYEEE</p>
       <div>
+        <label name="empId">Employee Id</label>{" "}
+        <input
+          type="text"
+          name="empId"
+          placeholder="employee id"
+          value={empId}
+          disabled={lock}
+          onChange={(e) => {
+            setEmpId(e.target.value);
+          }}
+        />
+        <br />
         <label name="name">Name</label>{" "}
         <input
           type="text"
@@ -172,25 +210,69 @@ function Organization() {
           }}
         />
         <br />
-        <label name="industry">Industry</label>{" "}
+        <label name="education">Education</label>{" "}
         <select
-          name="industry"
-          value={industry}
+          type="text"
+          name="education"
+          placeholder="education"
+          value={education}
           disabled={lock}
           onChange={(e) => {
-            setIndustry(e.target.value);
+            setEducation(e.target.value);
           }}
         >
-          {industrys.map((industry) => (
-            <option key={industry} value={industry.name}>
-              {industry.name}
+          {educations.map((education) => (
+            <option key={education} value={education.name}>
+              {education.name}
             </option>
           ))}
         </select>
         <br />
+        <label name="designation">Designation</label>{" "}
+        <select
+          type="text"
+          name="designation"
+          placeholder="designation"
+          value={designation}
+          disabled={lock}
+          onChange={(e) => {
+            setDesignation(e.target.value);
+          }}
+        >
+          {designations.map((designation) => (
+            <option key={designation} value={designation.name}>
+              {designation.name}
+            </option>
+          ))}
+        </select>
+        <br />
+        <label name="doj">Date Of Joining</label>{" "}
+        <input
+          type="date"
+          name="doj"
+          placeholder="date of joining"
+          value={doj}
+          disabled={lock}
+          onChange={(e) => {
+            const selectedDate = new Date(e.target.value);
+            const year = selectedDate.getFullYear();
+            const month = selectedDate.getMonth() + 1;
+            const date = selectedDate.getDate();
+            const formattedDate =
+              year +
+              "-" +
+              (month.toString().length === 1 ? "0" + month : month) +
+              "-" +
+              (date.toString().length === 1 ? "0" + date : date);
+            setDOJ(formattedDate);
+          }}
+        />
+        <br />
         <label name="location">Location</label>{" "}
         <select
+          type="text"
           name="location"
+          placeholder="location"
           value={location}
           disabled={lock}
           onChange={(e) => {
@@ -204,30 +286,38 @@ function Organization() {
           ))}
         </select>
         <br />
-        <label name="address">Address</label>{" "}
-        <input
+        <label name="department">Department</label>{" "}
+        <select
           type="text"
-          name="address"
-          placeholder="address"
-          value={address}
+          name="department"
+          placeholder="department"
+          value={department}
           disabled={lock}
           onChange={(e) => {
-            setAddress(e.target.value);
+            setDepartment(e.target.value);
           }}
-        />
+        >
+          {departments.map((department) => (
+            <option key={department} value={department.name}>
+              {department.name}
+            </option>
+          ))}
+        </select>
         <br />
-        <label name="dialcode">Dail Code</label>{" "}
+        <label name="dialCode">Dial Code</label>{" "}
         <select
-          name="dialcode"
+          type="text"
+          name="dialCode"
+          placeholder="dial code"
           value={dialCode}
           disabled={lock}
           onChange={(e) => {
             setDialCode(e.target.value);
           }}
         >
-          {dialcodes.map((dialcode) => (
-            <option key={dialcode} value={dialcode.dialCode}>
-              {dialcode.dialCode}
+          {dialCodes.map((dialCode) => (
+            <option key={dialCode} value={dialCode.dialCode}>
+              {dialCode.dialCode}
             </option>
           ))}
         </select>
@@ -256,15 +346,15 @@ function Organization() {
           }}
         />
         <br />
-        <label name="description">Description</label>{" "}
+        <label name="ctc">Cost To Company</label>{" "}
         <input
-          type="text"
-          name="description"
-          placeholder="description"
-          value={description}
+          type="number"
+          name="ctc"
+          placeholder="ctc"
+          value={ctc}
           disabled={lock}
           onChange={(e) => {
-            setDescription(e.target.value);
+            setCTC(e.target.value);
           }}
         />
         <br />
@@ -272,11 +362,7 @@ function Organization() {
           type="submit"
           name="submit-button"
           onClick={() => {
-            if (lock) {
-              postOrganization();
-            } else {
-              alert("Save before Submitting");
-            }
+            postEmployee();
           }}
         >
           Submit
@@ -294,5 +380,5 @@ function Organization() {
     </>
   );
 }
-
-export default Organization;
+// "http://127.0.0.1:3000/app/unit"
+export default AddEmployee;

@@ -6,7 +6,10 @@ import Components from "./data/components.js";
 import Attendance from "./models/attendance.js";
 import Industry from "./models/industry.js";
 import Location from "./models/location.js";
-import DialCode from "./models/dailcode.js";
+import DialCode from "./models/dialcode.js";
+import Designation from "./models/designation.js";
+import Department from "./models/department.js";
+import Qualification from "./models/education.js";
 
 const router = Router();
 
@@ -96,6 +99,51 @@ router.get("/dialcodes", async (req, res) => {
   }
 });
 
+router.get("/qualifications", async (req, res) => {
+  try {
+    const educations = await Qualification.find();
+
+    console.log("educations");
+    console.log(educations);
+
+    res.status(200).send(educations);
+  } catch (err) {
+    console.log("Server-Error");
+    console.log(err);
+    res.send(err);
+  }
+});
+
+router.get("/designations", async (req, res) => {
+  try {
+    const designations = await Designation.find();
+
+    console.log("designations");
+    console.log(designations);
+
+    res.status(200).send(designations);
+  } catch (err) {
+    console.log("Server-Error");
+    console.log(err);
+    res.send(err);
+  }
+});
+
+router.get("/departments", async (req, res) => {
+  try {
+    const departments = await Department.find();
+
+    console.log("departments");
+    console.log(departments);
+
+    res.status(200).send(departments);
+  } catch (err) {
+    console.log("Server-Error");
+    console.log(err);
+    res.send(err);
+  }
+});
+
 router.post("/payst", async (req, res) => {
   try {
     let components = [];
@@ -134,18 +182,20 @@ router.get("/payst/:unitId", async (req, res) => {
   }
 });
 
-router.post("/emp", async (req, res) => {
+router.post("/employee", async (req, res) => {
   try {
-    let _salary = await getSalary(req);
-    console.log("_salary");
-    console.log(_salary);
     const employee = new Employee({
-      id: req.body.id,
+      empId: req.body.empId,
       name: req.body.name,
-      unitId: req.body.unitId,
-      experience: req.body.experience,
-      avgWorkHour: null,
-      salary: _salary,
+      education: req.body.education,
+      designation: req.body.designation,
+      doj: req.body.doj,
+      location: req.body.location,
+      department: req.body.department,
+      dialCode: req.body.dialCode,
+      phone: req.body.phone,
+      email: req.body.email,
+      ctc: req.body.ctc,
     });
 
     console.log(employee);
