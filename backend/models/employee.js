@@ -2,7 +2,10 @@ import { Schema as _Schema, model } from "mongoose";
 const Schema = _Schema;
 
 const EmployeeSchema = new Schema({
-  empId: String,
+  empId: {
+    type: String,
+    unique: true,
+  },
   name: String,
   education: String,
   designation: String,
@@ -10,8 +13,14 @@ const EmployeeSchema = new Schema({
   location: String,
   department: String,
   dialCode: String,
-  phone: String,
-  email: String,
+  phone: {
+    type: String,
+    unique: true,
+  },
+  email: {
+    type: String,
+    unique: true,
+  },
   ctc: Number,
 });
 

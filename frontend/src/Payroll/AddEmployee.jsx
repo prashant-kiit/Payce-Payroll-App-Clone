@@ -45,7 +45,8 @@ function AddEmployee() {
         throw new Error(response.status + " - " + response.statusText);
       }
 
-      const data = await response.json();
+      let data = await response.json();
+      data.unshift({ _id: 0, id: 0, name: "" });
       console.log("data");
       console.log(data);
       setEducations(data);
@@ -69,7 +70,8 @@ function AddEmployee() {
         throw new Error(response.status + " - " + response.statusText);
       }
 
-      const data = await response.json();
+      let data = await response.json();
+      data.unshift({ _id: 0, id: 0, name: "" });
       console.log("data");
       console.log(data);
       setLocations(data);
@@ -93,7 +95,8 @@ function AddEmployee() {
         throw new Error(response.status + " - " + response.statusText);
       }
 
-      const data = await response.json();
+      let data = await response.json();
+      data.unshift({ _id: 0, country: "xyx", dialCode: "" });
       console.log("data");
       console.log(data);
       setDialCodes(data);
@@ -117,7 +120,8 @@ function AddEmployee() {
         throw new Error(response.status + " - " + response.statusText);
       }
 
-      const data = await response.json();
+      let data = await response.json();
+      data.unshift({ _id: 0, id: 0, name: "" });
       console.log("data");
       console.log(data);
       setDesignations(data);
@@ -141,7 +145,8 @@ function AddEmployee() {
         throw new Error(response.status + " - " + response.statusText);
       }
 
-      const data = await response.json();
+      let data = await response.json();
+      data.unshift({ _id: 0, id: 0, name: "" });
       console.log("data");
       console.log(data);
       setDepartments(data);
@@ -153,6 +158,21 @@ function AddEmployee() {
 
   const postEmployee = useCallback(async () => {
     try {
+      console.log(
+        JSON.stringify({
+          empId: empId,
+          name: name,
+          education: education,
+          designation: designation,
+          doj: doj,
+          location: location,
+          department: department,
+          dialCode: dialCode,
+          phone: phone,
+          email: email,
+          ctc: ctc,
+        })
+      );
       const response = await fetch("http://127.0.0.1:3000/app/employee", {
         method: "POST",
         headers: {
@@ -185,7 +205,19 @@ function AddEmployee() {
       console.log("Client-Error");
       console.log(err);
     }
-  }, []);
+  }, [
+    empId,
+    name,
+    education,
+    designation,
+    doj,
+    location,
+    department,
+    dialCode,
+    phone,
+    email,
+    ctc,
+  ]);
 
   if (status) {
     return (
@@ -207,12 +239,11 @@ function AddEmployee() {
       <h2>Payroll App</h2>
       <p>ADD EMPLOYEEE</p>
       <div>
-        <label name="empId">Employee Id</label>{" "}
+        <label name="empId">Employee Id*</label>{" "}
         <input
           type="text"
           name="empId"
           key={"1"}
-          placeholder="employee id"
           value={empId}
           disabled={lock}
           onChange={(e) => {
@@ -220,11 +251,10 @@ function AddEmployee() {
           }}
         />
         <br />
-        <label htmlFor="name">Name</label>{" "}
+        <label htmlFor="name">Name*</label>{" "}
         <input
           type="text"
           name="name"
-          placeholder="name"
           key={"2"}
           value={name}
           disabled={lock}
@@ -233,11 +263,10 @@ function AddEmployee() {
           }}
         />
         <br />
-        <label htmlFor="education">Education</label>{" "}
+        <label htmlFor="education">Education*</label>{" "}
         <select
           type="text"
           name="education"
-          placeholder="education"
           key={"3"}
           value={education}
           disabled={lock}
@@ -252,11 +281,10 @@ function AddEmployee() {
           ))}
         </select>
         <br />
-        <label htmlFor="designation">Designation</label>{" "}
+        <label htmlFor="designation">Designation*</label>{" "}
         <select
           type="text"
           name="designation"
-          placeholder="designation"
           key={"4"}
           value={designation}
           disabled={lock}
@@ -271,11 +299,10 @@ function AddEmployee() {
           ))}
         </select>
         <br />
-        <label htmlFor="doj">Date Of Joining</label>{" "}
+        <label htmlFor="doj">Date Of Joining*</label>{" "}
         <input
           type="date"
           name="doj"
-          placeholder="date of joining"
           key={"5"}
           value={doj}
           disabled={lock}
@@ -299,11 +326,10 @@ function AddEmployee() {
           }}
         />
         <br />
-        <label htmlFor="location">Location</label>{" "}
+        <label htmlFor="location">Location*</label>{" "}
         <select
           type="text"
           name="location"
-          placeholder="location"
           key={"6"}
           value={location}
           disabled={lock}
@@ -318,11 +344,10 @@ function AddEmployee() {
           ))}
         </select>
         <br />
-        <label htmlFor="department">Department</label>{" "}
+        <label htmlFor="department">Department*</label>{" "}
         <select
           type="text"
           name="department"
-          placeholder="department"
           key={"7"}
           value={department}
           disabled={lock}
@@ -337,11 +362,10 @@ function AddEmployee() {
           ))}
         </select>
         <br />
-        <label htmlFor="dialCode">Dial Code</label>{" "}
+        <label htmlFor="dialCode">Dial Code*</label>{" "}
         <select
           type="text"
           name="dialCode"
-          placeholder="dial code"
           key={"8"}
           value={dialCode}
           disabled={lock}
@@ -356,11 +380,10 @@ function AddEmployee() {
           ))}
         </select>
         <br />
-        <label htmlFor="phone">Phone</label>{" "}
+        <label htmlFor="phone">Phone*</label>{" "}
         <input
           type="text"
           name="phone"
-          placeholder="phone"
           key={"9"}
           value={phone}
           disabled={lock}
@@ -369,11 +392,10 @@ function AddEmployee() {
           }}
         />
         <br />
-        <label htmlFor="email">Email</label>{" "}
+        <label htmlFor="email">Email*</label>{" "}
         <input
           type="text"
           name="email"
-          placeholder="email"
           key={"10"}
           value={email}
           disabled={lock}
@@ -382,23 +404,21 @@ function AddEmployee() {
           }}
         />
         <br />
-        <label htmlFor="ctc">Cost To Company</label>{" "}
+        <label htmlFor="ctc">Cost To Company*</label>{" "}
         <input
           type="number"
           name="ctc"
-          placeholder="ctc"
           key={"11"}
           value={ctc}
           disabled={lock}
           onChange={(e) => {
             if (/^\d+$/.test(e.target.value)) {
-              console.log("check3");
               setCTC(Number(e.target.value));
+            } else if (e.target.value === "") {
+              setCTC(e.target.value);
             } else {
-              console.log("check2");
-              alert("Only Numbers are allowed");
+              alert("Only Postive Numbers are allowed");
             }
-            console.log("check");
           }}
         />
         <br />
@@ -406,10 +426,26 @@ function AddEmployee() {
           type="submit"
           name="submit-button"
           onClick={async () => {
-            if (lock) {
-              await postEmployee();
+            if (
+              empId === "" ||
+              name === "" ||
+              education === "" ||
+              designation === "" ||
+              doj === "" ||
+              location === "" ||
+              department === "" ||
+              dialCode === "" ||
+              phone === "" ||
+              email === "" ||
+              ctc === ""
+            ) {
+              alert("Please fill the mandatory fields");
             } else {
-              alert("Save before submitting");
+              if (lock) {
+                await postEmployee();
+              } else {
+                alert("Save before submitting");
+              }
             }
           }}
         >

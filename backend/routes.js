@@ -10,8 +10,15 @@ import DialCode from "./models/dialcode.js";
 import Designation from "./models/designation.js";
 import Department from "./models/department.js";
 import Qualification from "./models/education.js";
+import dotenv from "dotenv";
+import twilio from "twilio";
+import readline from "readline";
 
 const router = Router();
+dotenv.config();
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = twilio(accountSid, authToken);
 
 router.post("/organization", async (req, res) => {
   try {
@@ -144,6 +151,53 @@ router.get("/departments", async (req, res) => {
   }
 });
 
+router.post("/employee", async (req, res) => {
+  try {
+    const employee = new Employee({
+      empId: req.body.empId,
+      name: req.body.name,
+      education: req.body.education,
+      designation: req.body.designation,
+      doj: req.body.doj,
+      location: req.body.location,
+      department: req.body.department,
+      dialCode: req.body.dialCode,
+      phone: req.body.phone,
+      email: req.body.email,
+      ctc: req.body.ctc,
+    });
+
+    console.log(employee);
+
+    await employee.save();
+    res.status(200).send();
+  } catch (err) {
+    console.log("Server-Error");
+    console.log(err);
+    res.send(err);
+  }
+});
+
+router.post("/send-sms", async (req, res) => {
+  try {
+    const dialCode = req.body.dialCode;
+    const phone = req.body.phone;
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const response = await client.messages.create({
+      from: "+13344328364",
+      to: `${dialCode}${phone}`, // custom recipent phone no
+      body: `This login verification message. Your OTP is ${otp}.`, // custom organization name
+    });
+    console.log(response);
+
+    res.status(200).send(response);
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.send(error);
+  }
+});
+
 router.post("/payst", async (req, res) => {
   try {
     let components = [];
@@ -175,33 +229,6 @@ router.get("/payst/:unitId", async (req, res) => {
     console.log(payStructure);
     res.setHeader("Content-Type", "application/json; charset=UTF-8");
     res.status(200).send(payStructure);
-  } catch (err) {
-    console.log("Server-Error");
-    console.log(err);
-    res.send(err);
-  }
-});
-
-router.post("/employee", async (req, res) => {
-  try {
-    const employee = new Employee({
-      empId: req.body.empId,
-      name: req.body.name,
-      education: req.body.education,
-      designation: req.body.designation,
-      doj: req.body.doj,
-      location: req.body.location,
-      department: req.body.department,
-      dialCode: req.body.dialCode,
-      phone: req.body.phone,
-      email: req.body.email,
-      ctc: req.body.ctc,
-    });
-
-    console.log(employee);
-
-    await employee.save();
-    res.status(200).send();
   } catch (err) {
     console.log("Server-Error");
     console.log(err);
