@@ -15,10 +15,10 @@ import twilio from "twilio";
 import readline from "readline";
 
 const router = Router();
-dotenv.config();
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = twilio(accountSid, authToken);
+// dotenv.config();
+// const accountSid = process.env.TWILIO_ACCOUNT_SID;
+// const authToken = process.env.TWILIO_AUTH_TOKEN;
+// const client = twilio(accountSid, authToken);
 
 router.post("/organization", async (req, res) => {
   try {
@@ -33,16 +33,16 @@ router.post("/organization", async (req, res) => {
       description: req.body.description,
     });
 
-    console.log(organization);
+    // console.log(organization);
 
     await Organization.deleteMany({});
     await organization.save();
 
-    res.status(200).send();
-  } catch (err) {
+    res.status(200).send({ data: "Post Successful" });
+  } catch (error) {
     console.log("Server-Error");
-    console.log(err);
-    res.send(err);
+    console.log(error);
+    res.status(500).send({ data: "Post Failure : " + error });
   }
 });
 
@@ -50,14 +50,14 @@ router.get("/organization", async (req, res) => {
   try {
     const organization = await Organization.find();
 
-    console.log("organization");
-    console.log(organization);
+    // console.log("organization");
+    // console.log(organization);
 
     res.status(200).send(organization);
-  } catch (err) {
+  } catch (error) {
     console.log("Server-Error");
-    console.log(err);
-    res.send(err);
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 
@@ -65,14 +65,14 @@ router.get("/industrys", async (req, res) => {
   try {
     const industrys = await Industry.find();
 
-    console.log("industrys");
-    console.log(industrys);
+    // console.log("industrys");
+    // console.log(industrys);
 
     res.status(200).send(industrys);
-  } catch (err) {
+  } catch (error) {
     console.log("Server-Error");
-    console.log(err);
-    res.send(err);
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 
@@ -80,14 +80,14 @@ router.get("/locations", async (req, res) => {
   try {
     const locations = await Location.find();
 
-    console.log("locations");
-    console.log(locations);
+    // console.log("locations");
+    // console.log(locations);
 
     res.status(200).send(locations);
-  } catch (err) {
+  } catch (error) {
     console.log("Server-Error");
-    console.log(err);
-    res.send(err);
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 
@@ -95,14 +95,14 @@ router.get("/dialcodes", async (req, res) => {
   try {
     const dialcodes = await DialCode.find();
 
-    console.log("dial codes");
-    console.log(dialcodes);
+    // console.log("dial codes");
+    // console.log(dialcodes);
 
     res.status(200).send(dialcodes);
-  } catch (err) {
+  } catch (error) {
     console.log("Server-Error");
-    console.log(err);
-    res.send(err);
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 
@@ -110,14 +110,14 @@ router.get("/qualifications", async (req, res) => {
   try {
     const educations = await Qualification.find();
 
-    console.log("educations");
-    console.log(educations);
+    // console.log("educations");
+    // console.log(educations);
 
     res.status(200).send(educations);
-  } catch (err) {
+  } catch (error) {
     console.log("Server-Error");
-    console.log(err);
-    res.send(err);
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 
@@ -125,14 +125,14 @@ router.get("/designations", async (req, res) => {
   try {
     const designations = await Designation.find();
 
-    console.log("designations");
-    console.log(designations);
+    // console.log("designations");
+    // console.log(designations);
 
     res.status(200).send(designations);
-  } catch (err) {
+  } catch (error) {
     console.log("Server-Error");
-    console.log(err);
-    res.send(err);
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 
@@ -140,14 +140,14 @@ router.get("/departments", async (req, res) => {
   try {
     const departments = await Department.find();
 
-    console.log("departments");
-    console.log(departments);
+    // console.log("departments");
+    // console.log(departments);
 
     res.status(200).send(departments);
-  } catch (err) {
+  } catch (error) {
     console.log("Server-Error");
-    console.log(err);
-    res.send(err);
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 
@@ -169,12 +169,30 @@ router.post("/employee", async (req, res) => {
 
     console.log(employee);
 
-    await employee.save();
-    res.status(200).send();
-  } catch (err) {
+    await employee.save(employee);
+
+    res.status(200).send({ data: "Post Successful" });
+  } catch (error) {
     console.log("Server-Error");
-    console.log(err);
-    res.send(err);
+    if (err.code === 11000 || err.code === 11001);
+    res.statusMessage =
+      "Employee Profile is not Unique. Atleast aany one of Emp Id, Phone, Email needs to be changed";
+    console.log(error);
+    res.status(500).send({ data: "Post Failure : " + error });
+  }
+});
+
+router.get("/employees", async (req, res) => {
+  try {
+    const employees = await Employee.find();
+
+    console.log(employees);
+
+    res.status(200).send(employees);
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 
@@ -190,11 +208,11 @@ router.post("/send-sms", async (req, res) => {
     });
     console.log(response);
 
-    res.status(200).send(response);
+    res.status(200).send({ data: "Post Successful" });
   } catch (error) {
     console.log("Server-Error");
     console.log(error);
-    res.send(error);
+    res.status(500).send({ data: "Post Failure : " + error });
   }
 });
 
@@ -215,11 +233,12 @@ router.post("/payst", async (req, res) => {
     console.log(payStructure);
 
     await payStructure.save();
-    res.status(200).send();
-  } catch (err) {
+
+    res.status(200).send({ data: "Post Successful" });
+  } catch (error) {
     console.log("Server-Error");
-    console.log(err);
-    res.send(err);
+    console.log(error);
+    res.status(500).send({ data: "Post Failure : " + error });
   }
 });
 
@@ -228,11 +247,13 @@ router.get("/payst/:unitId", async (req, res) => {
     const payStructure = await PayStructure.find({ unitId: req.params.unitId });
     console.log(payStructure);
     res.setHeader("Content-Type", "application/json; charset=UTF-8");
+
     res.status(200).send(payStructure);
-  } catch (err) {
+  } catch (error) {
     console.log("Server-Error");
-    console.log(err);
-    res.send(err);
+    console.log(error);
+
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 
@@ -240,11 +261,13 @@ router.get("/emp/:id", async (req, res) => {
   try {
     const employee = await Employee.find({ id: req.params.id });
     res.setHeader("Content-Type", "application/json; charset=UTF-8");
+
     res.status(200).send(employee);
-  } catch (err) {
+  } catch (error) {
     console.log("Server-Error");
-    console.log(err);
-    res.send(err);
+    console.log(error);
+
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 
@@ -262,10 +285,10 @@ router.get("/empsal/:id", async (req, res) => {
 
     const data = await response.json();
     res.status(200).send({ salary: data[0].salary });
-  } catch (err) {
+  } catch (error) {
     console.log("Server-Error");
-    console.log(err);
-    res.send(err);
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 
@@ -277,10 +300,10 @@ router.get("/components", async (req, res) => {
     });
 
     res.status(200).send(componentStatus);
-  } catch (err) {
+  } catch (error) {
     console.log("Server-error");
-    console.log(err);
-    res.send(err);
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 
@@ -323,13 +346,12 @@ router.put("/attendance", async (req, res) => {
     });
 
     await attendance.save();
-    res.status(200).send();
-  } catch (err) {
+    res.status(200).send({ data: "Put Successful" });
+  } catch (error) {
     console.log("Server-Error");
-    console.log(err);
-    res.send(err);
+    console.log(error);
+    res.status(500).send({ data: "Put Failure : " + error });
   }
-  console.log("Message Queued");
 });
 
 router.get("/attendance/:empId", async (req, res) => {
@@ -344,9 +366,9 @@ router.get("/attendance/:empId", async (req, res) => {
     }
 
     res.status(200).send(data);
-  } catch (err) {
+  } catch (error) {
     console.log("Server-Error");
-    res.send(err);
+    res.status(500).send({data: "Get Failure : " + error });
   }
 });
 
