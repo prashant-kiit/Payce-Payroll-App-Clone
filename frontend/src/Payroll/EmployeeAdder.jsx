@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 
-function AddEmployee() {
+function EmployeeAdder() {
   const [empId, setEmpId] = useState("");
   const [name, setName] = useState("");
   const [education, setEducation] = useState("");
@@ -40,15 +40,19 @@ function AddEmployee() {
         },
       });
 
-      if (!response.ok) {
-        alert("Status : " + response.status + " - " + response.statusText);
-        throw new Error(response.status + " - " + response.statusText);
-      }
+      console.log("response");
+      console.log(response);
 
       let data = await response.json();
       data.unshift({ _id: 0, id: 0, name: "" });
       console.log("data");
       console.log(data);
+
+      if (!response.ok) {
+        alert("Status : " + response.status + " - " + response.statusText);
+        throw new Error(response.status + " - " + response.statusText);
+      }
+
       setEducations(data);
     } catch (error) {
       console.log("Client-Error");
@@ -65,15 +69,19 @@ function AddEmployee() {
         },
       });
 
-      if (!response.ok) {
-        alert("Failure : " + response.status + " - " + response.statusText);
-        throw new Error(response.status + " - " + response.statusText);
-      }
+      console.log("response");
+      console.log(response);
 
       let data = await response.json();
       data.unshift({ _id: 0, id: 0, name: "" });
       console.log("data");
       console.log(data);
+
+      if (!response.ok) {
+        alert("Failure : " + response.status + " - " + response.statusText);
+        throw new Error(response.status + " - " + response.statusText);
+      }
+
       setLocations(data);
     } catch (error) {
       console.log("Client-Error");
@@ -90,15 +98,19 @@ function AddEmployee() {
         },
       });
 
-      if (!response.ok) {
-        alert("Status : " + response.status + " - " + response.statusText);
-        throw new Error(response.status + " - " + response.statusText);
-      }
+      console.log("response");
+      console.log(response);
 
       let data = await response.json();
       data.unshift({ _id: 0, country: "xyx", dialCode: "" });
       console.log("data");
       console.log(data);
+
+      if (!response.ok) {
+        alert("Status : " + response.status + " - " + response.statusText);
+        throw new Error(response.status + " - " + response.statusText);
+      }
+
       setDialCodes(data);
     } catch (error) {
       console.log("Client-Error");
@@ -115,15 +127,19 @@ function AddEmployee() {
         },
       });
 
-      if (!response.ok) {
-        alert("Status : " + response.status + " - " + response.statusText);
-        throw new Error(response.status + " - " + response.statusText);
-      }
+      console.log("response");
+      console.log(response);
 
       let data = await response.json();
       data.unshift({ _id: 0, id: 0, name: "" });
       console.log("data");
       console.log(data);
+
+      if (!response.ok) {
+        alert("Status : " + response.status + " - " + response.statusText);
+        throw new Error(response.status + " - " + response.statusText);
+      }
+
       setDesignations(data);
     } catch (error) {
       console.log("Client-Error");
@@ -140,15 +156,19 @@ function AddEmployee() {
         },
       });
 
-      if (!response.ok) {
-        alert("Status : " + response.status + " - " + response.statusText);
-        throw new Error(response.status + " - " + response.statusText);
-      }
+      console.log("response");
+      console.log(response);
 
       let data = await response.json();
       data.unshift({ _id: 0, id: 0, name: "" });
       console.log("data");
       console.log(data);
+
+      if (!response.ok) {
+        alert("Status : " + response.status + " - " + response.statusText);
+        throw new Error(response.status + " - " + response.statusText);
+      }
+
       setDepartments(data);
     } catch (error) {
       console.log("Client-Error");
@@ -193,7 +213,10 @@ function AddEmployee() {
         }),
       });
 
+      console.log("response");
       console.log(response);
+      console.log("data");
+      console.log(await response.json());
 
       if (!response.ok) {
         alert("Status : " + response.status + " - " + response.statusText);
@@ -464,5 +487,5 @@ function AddEmployee() {
     </>
   );
 }
-// "http://127.0.0.1:3000/app/unit"
-export default AddEmployee;
+
+export default EmployeeAdder;

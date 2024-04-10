@@ -30,6 +30,9 @@ function Organization() {
         },
       });
 
+      console.log("response");
+      console.log(response);
+
       if (!response.ok) {
         alert("Status : " + response.status + " - " + response.statusText);
         throw new Error(response.status + " - " + response.statusText);
@@ -38,6 +41,7 @@ function Organization() {
       const data = await response.json();
       console.log("data");
       console.log(data);
+
       setIndustrys(data);
     } catch (error) {
       console.log("Client-Error");
@@ -54,6 +58,9 @@ function Organization() {
         },
       });
 
+      console.log("response");
+      console.log(response);
+
       if (!response.ok) {
         alert("Status : " + response.status + " - " + response.statusText);
         throw new Error(response.status + " - " + response.statusText);
@@ -62,6 +69,7 @@ function Organization() {
       const data = await response.json();
       console.log("data");
       console.log(data);
+
       setLocations(data);
     } catch (error) {
       console.log("Client-Error");
@@ -78,6 +86,9 @@ function Organization() {
         },
       });
 
+      console.log("response");
+      console.log(response);
+
       if (!response.ok) {
         alert("Status : " + response.status + " - " + response.statusText);
         throw new Error(response.status + " - " + response.statusText);
@@ -86,6 +97,7 @@ function Organization() {
       const data = await response.json();
       console.log("data");
       console.log(data);
+
       setDialCodes(data);
     } catch (error) {
       console.log("Client-Error");
@@ -102,6 +114,9 @@ function Organization() {
         },
       });
 
+      console.log("response");
+      console.log(response);
+
       if (!response.ok) {
         alert("Status : " + response.status + " - " + response.statusText);
         throw new Error(response.status + " - " + response.statusText);
@@ -110,6 +125,7 @@ function Organization() {
       const data = await response.json();
       console.log("data");
       console.log(data);
+
       setName(data[0].name);
       setIndustry(data[0].industry);
       setLocation(data[0].location);
@@ -143,7 +159,10 @@ function Organization() {
         }),
       });
 
+      console.log("response");
       console.log(response);
+      console.log("data");
+      console.log(await response.json());
 
       if (!response.ok) {
         alert("Status : " + response.status + " - " + response.statusText);
