@@ -7,6 +7,6 @@ import PayStructure from "./Payroll/PayStructure.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   //<React.StrictMode>
-  <EmployeeAdder />
+  <EmployeeList />
   //</React.StrictMode>,
 );

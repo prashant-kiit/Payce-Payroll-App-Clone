@@ -1,17 +1,29 @@
 import { useEffect, useState, useCallback } from "react";
 
-function EmployeeAdder() {
-  const [empId, setEmpId] = useState("");
-  const [name, setName] = useState("");
-  const [education, setEducation] = useState("");
-  const [designation, setDesignation] = useState("");
-  const [doj, setDOJ] = useState("");
-  const [location, setLocation] = useState("");
-  const [department, setDepartment] = useState("");
-  const [dialCode, setDialCode] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [ctc, setCTC] = useState("");
+function EmployeeAdder({
+  empId1 = "",
+  name1 = "",
+  education1 = "",
+  designation1 = "",
+  doj1 = "",
+  location1 = "",
+  department1 = "",
+  dialCode1 = "",
+  phone1 = "",
+  email1 = "",
+  ctc1 = "",
+}) {
+  const [empId, setEmpId] = useState(empId1);
+  const [name, setName] = useState(name1);
+  const [education, setEducation] = useState(education1);
+  const [designation, setDesignation] = useState(designation1);
+  const [doj, setDOJ] = useState(doj1);
+  const [location, setLocation] = useState(location1);
+  const [department, setDepartment] = useState(department1);
+  const [dialCode, setDialCode] = useState(dialCode1);
+  const [phone, setPhone] = useState(phone1);
+  const [email, setEmail] = useState(email1);
+  const [ctc, setCTC] = useState(ctc1);
   const [educations, setEducations] = useState([]);
   const [locations, setLocations] = useState([]);
   const [dialCodes, setDialCodes] = useState([]);
