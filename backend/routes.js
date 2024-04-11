@@ -1,4 +1,8 @@
 import { Router } from "express";
+import dotenv from "dotenv";
+import twilio from "twilio";
+import readline from "readline";
+import _ from "lodash";
 import Organization from "./models/organization.js";
 import Employee from "./models/employee.js";
 import PayStructure from "./models/payStructure.js";
@@ -10,9 +14,6 @@ import DialCode from "./models/dialcode.js";
 import Designation from "./models/designation.js";
 import Department from "./models/department.js";
 import Qualification from "./models/education.js";
-import dotenv from "dotenv";
-import twilio from "twilio";
-import readline from "readline";
 
 const router = Router();
 // dotenv.config();
@@ -36,7 +37,26 @@ router.post("/organization", async (req, res) => {
     // console.log(organization);
 
     await Organization.deleteMany({});
-    await organization.save();
+    const organizations = await Organization.find();
+    if (!organizations.length === 0) {
+      throw new Error("Collection not Empty");
+    }
+
+    let temp1 = {};
+    Object.assign(temp1, organization);
+    delete temp1._doc._id;
+    delete temp1._doc.__v;
+
+    const organizationReturned = await organization.save();
+
+    let temp2 = {};
+    Object.assign(temp2, organizationReturned);
+    delete temp2._doc._id;
+    delete temp2._doc.__v;
+
+    if (!_.isEqual(temp1._doc, temp2._doc)) {
+      throw new Error("Data inconsistent between Server and Database");
+    }
 
     res.status(200).send({ data: "Post Successful" });
   } catch (error) {
@@ -53,6 +73,10 @@ router.get("/organization", async (req, res) => {
     // console.log("organization");
     // console.log(organization);
 
+    if (!organization.length === 1) {
+      throw new Error("Collection has Duplicate data or No data");
+    }
+
     res.status(200).send(organization);
   } catch (error) {
     console.log("Server-Error");
@@ -67,6 +91,9 @@ router.get("/industrys", async (req, res) => {
 
     // console.log("industrys");
     // console.log(industrys);
+    if (industrys.length === 0) {
+      throw new Error("Empty Collection");
+    }
 
     res.status(200).send(industrys);
   } catch (error) {
@@ -82,6 +109,9 @@ router.get("/locations", async (req, res) => {
 
     // console.log("locations");
     // console.log(locations);
+    if (locations.length === 0) {
+      throw new Error("Empty Collection");
+    }
 
     res.status(200).send(locations);
   } catch (error) {
@@ -98,6 +128,10 @@ router.get("/dialcodes", async (req, res) => {
     // console.log("dial codes");
     // console.log(dialcodes);
 
+    if (dialcodes.length === 0) {
+      throw new Error("Empty Collection");
+    }
+
     res.status(200).send(dialcodes);
   } catch (error) {
     console.log("Server-Error");
@@ -112,6 +146,10 @@ router.get("/qualifications", async (req, res) => {
 
     // console.log("educations");
     // console.log(educations);
+
+    if (educations.length === 0) {
+      throw new Error("Empty Collection");
+    }
 
     res.status(200).send(educations);
   } catch (error) {
@@ -128,6 +166,10 @@ router.get("/designations", async (req, res) => {
     // console.log("designations");
     // console.log(designations);
 
+    if (designations.length === 0) {
+      throw new Error("Empty Collection");
+    }
+
     res.status(200).send(designations);
   } catch (error) {
     console.log("Server-Error");
@@ -142,6 +184,10 @@ router.get("/departments", async (req, res) => {
 
     // console.log("departments");
     // console.log(departments);
+
+    if (departments.length === 0) {
+      throw new Error("Empty Collection");
+    }
 
     res.status(200).send(departments);
   } catch (error) {
@@ -167,17 +213,34 @@ router.post("/employee", async (req, res) => {
       ctc: req.body.ctc,
     });
 
-    console.log(employee);
+    // console.log(employee);
 
-    await employee.save(employee);
+    let temp1 = {};
+    Object.assign(temp1, employee);
+    delete temp1._doc._id;
+    delete temp1._doc.__v;
+
+    const employeeReturned = await employee.save();
+
+    let temp2 = {};
+    Object.assign(temp2, employeeReturned);
+    delete temp2._doc._id;
+    delete temp2._doc.__v;
+
+    if (!_.isEqual(temp1._doc, temp2._doc)) {
+      throw new Error("Data inconsistent between Server and Database");
+    }
 
     res.status(200).send({ data: "Post Successful" });
   } catch (error) {
     console.log("Server-Error");
-    if (err.code === 11000 || err.code === 11001);
-    res.statusMessage =
-      "Employee Profile is not Unique. Atleast aany one of Emp Id, Phone, Email needs to be changed";
+
+    if (err.code === 11000 || err.code === 11001) {
+      res.statusMessage =
+        "Employee Profile is not Unique. Atleast aany one of Emp Id, Phone, Email needs to be changed";
+    }
     console.log(error);
+
     res.status(500).send({ data: "Post Failure : " + error });
   }
 });
@@ -186,13 +249,90 @@ router.get("/employees", async (req, res) => {
   try {
     const employees = await Employee.find();
 
-    console.log(employees);
+    // console.log(employees);
+
+    if (employees.length === 0) {
+      throw new Error("No Data");
+    }
 
     res.status(200).send(employees);
   } catch (error) {
     console.log("Server-Error");
     console.log(error);
     res.status(500).send({ data: "Get Failure : " + error });
+  }
+});
+
+router.get("/employee/:empId", async (req, res) => {
+  try {
+    const employee = await Employee.find({ empId: req.params.empId });
+
+    // console.log(employee);
+
+    if (!employee.length === 1) {
+      throw new Error("Collection has No Data or Duplicate Data");
+    }
+
+    res.status(200).send(employee);
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
+  }
+});
+
+router.put("/employee/:empId", async (req, res) => {
+  try {
+    const employeeNew = new Employee({
+      empId: req.body.empId,
+      name: req.body.name,
+      education: req.body.education,
+      designation: req.body.designation,
+      doj: req.body.doj,
+      location: req.body.location,
+      department: req.body.department,
+      dialCode: req.body.dialCode,
+      phone: req.body.phone,
+      email: req.body.email,
+      ctc: req.body.ctc,
+    });
+
+    let temp1 = {};
+    Object.assign(temp1, employeeNew);
+    delete temp1._doc._id;
+    delete temp1._doc.__v;
+
+    const employeeReturned = await Employee.findOneAndUpdate(
+      { empId: req.body.empId },
+      {
+        name: req.body.name,
+        education: req.body.education,
+        designation: req.body.designation,
+        doj: req.body.doj,
+        location: req.body.location,
+        department: req.body.department,
+        dialCode: req.body.dialCode,
+        phone: req.body.phone,
+        email: req.body.email,
+        ctc: req.body.ctc,
+      },
+      { new: true }
+    );
+
+    let temp2 = {};
+    Object.assign(temp2, employeeReturned);
+    delete temp2._doc._id;
+    delete temp2._doc.__v;
+
+    if (!_.isEqual(temp1._doc, temp2._doc)) {
+      throw new Error("Data inconsistent between Server and Database");
+    }
+
+    res.status(200).send();
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Put Failure : " + error });
   }
 });
 
@@ -368,7 +508,7 @@ router.get("/attendance/:empId", async (req, res) => {
     res.status(200).send(data);
   } catch (error) {
     console.log("Server-Error");
-    res.status(500).send({data: "Get Failure : " + error });
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 

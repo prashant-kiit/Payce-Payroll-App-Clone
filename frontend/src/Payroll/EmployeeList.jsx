@@ -61,7 +61,7 @@ function EmployeeList() {
                 <td key={`desi${employee.empId}`}>{employee.designation}</td>
                 <td key={`dept${employee.empId}`}>{employee.department}</td>
                 <td key={`email${employee.empId}`}>{employee.email}</td>
-                <td key={`ctc${employee.empId}`}>{employee.ctc}</td>
+                <td key={`ctc${employee.empId}`}>${employee.ctc} per year</td>
                 <td key={`action${employee.empId}`}>
                   <button
                     key={`button${employee.empId}`}
