@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { NavLink } from "react-router-dom";
 
 function EmployeeAdder() {
   const [empId, setEmpId] = useState("");
@@ -216,11 +217,21 @@ function EmployeeAdder() {
       console.log("response");
       console.log(response);
       console.log("data");
-      console.log(await response.json());
+      const data = await response.json();
+      console.log(data.data);
 
       if (!response.ok) {
-        alert("Status : " + response.status + " - " + response.statusText);
-        throw new Error(response.status + " - " + response.statusText);
+        alert(
+          "Status : " +
+            response.status +
+            " - " +
+            response.statusText +
+            " - " +
+            data.data
+        );
+        throw new Error(
+          response.status + " - " + response.statusText + " - " + data.data
+        );
       } else {
         setStatus(true);
       }
@@ -244,23 +255,35 @@ function EmployeeAdder() {
 
   if (status) {
     return (
-      <>
-        <p>Employee Added</p>
-        <button
-          onClick={() => {
-            window.location.reload();
-          }}
-        >
-          Add Another Employee
-        </button>
-      </>
+      <div>
+        <div>
+          <p>Employee Added</p>
+        </div>
+        <div>
+          <button
+            onClick={() => {
+              window.location.reload();
+            }}
+          >
+            Add Another Employee
+          </button>
+        </div>
+        <div>
+          <br />
+          <NavLink to={`/employees/${empId}`}>
+            Edit the Last Submitted Employee
+          </NavLink>
+        </div>
+      </div>
     );
   }
 
   return (
-    <>
-      <h2>Payroll App</h2>
-      <p>ADD EMPLOYEEE</p>
+    <div>
+      <div>
+        <h2>Payroll App</h2>
+        <p>ADD EMPLOYEEE</p>
+      </div>
       <div>
         <label name="empId">Employee Id*</label>{" "}
         <input
@@ -484,7 +507,11 @@ function EmployeeAdder() {
           {lock ? "Edit" : "Save"}
         </button>
       </div>
-    </>
+      <div>
+        <br />
+        <NavLink to="/employees">Employees List</NavLink>
+      </div>
+    </div>
   );
 }
 

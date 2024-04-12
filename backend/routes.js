@@ -42,12 +42,12 @@ router.post("/organization", async (req, res) => {
       throw new Error("Collection not Empty");
     }
 
+    const organizationReturned = await organization.save();
+
     let temp1 = {};
     Object.assign(temp1, organization);
     delete temp1._doc._id;
     delete temp1._doc.__v;
-
-    const organizationReturned = await organization.save();
 
     let temp2 = {};
     Object.assign(temp2, organizationReturned);
@@ -215,15 +215,19 @@ router.post("/employee", async (req, res) => {
 
     // console.log(employee);
 
+    const employeeReturned = await employee.save();
+
     let temp1 = {};
     Object.assign(temp1, employee);
+    console.log(employee);
+    console.log(temp1);
     delete temp1._doc._id;
     delete temp1._doc.__v;
 
-    const employeeReturned = await employee.save();
-
     let temp2 = {};
     Object.assign(temp2, employeeReturned);
+    console.log(employeeReturned);
+    console.log(temp2);
     delete temp2._doc._id;
     delete temp2._doc.__v;
 
@@ -235,7 +239,7 @@ router.post("/employee", async (req, res) => {
   } catch (error) {
     console.log("Server-Error");
 
-    if (err.code === 11000 || err.code === 11001) {
+    if (error.code === 11000 || error.code === 11001) {
       res.statusMessage =
         "Employee Profile is not Unique. Atleast aany one of Emp Id, Phone, Email needs to be changed";
     }
@@ -297,11 +301,6 @@ router.put("/employee/:empId", async (req, res) => {
       ctc: req.body.ctc,
     });
 
-    let temp1 = {};
-    Object.assign(temp1, employeeNew);
-    delete temp1._doc._id;
-    delete temp1._doc.__v;
-
     const employeeReturned = await Employee.findOneAndUpdate(
       { empId: req.body.empId },
       {
@@ -318,6 +317,11 @@ router.put("/employee/:empId", async (req, res) => {
       },
       { new: true }
     );
+
+    let temp1 = {};
+    Object.assign(temp1, employeeNew);
+    delete temp1._doc._id;
+    delete temp1._doc.__v;
 
     let temp2 = {};
     Object.assign(temp2, employeeReturned);
@@ -346,7 +350,8 @@ router.post("/send-sms", async (req, res) => {
       to: `${dialCode}${phone}`, // custom recipent phone no
       body: `This login verification message. Your OTP is ${otp}.`, // custom organization name
     });
-    console.log(response);
+    
+    // console.log(response);
 
     res.status(200).send({ data: "Post Successful" });
   } catch (error) {
