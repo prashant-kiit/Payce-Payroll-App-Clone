@@ -23,7 +23,7 @@ function EmployeeEditor() {
   const [dialCodes, setDialCodes] = useState([]);
   const [designations, setDesignations] = useState([]);
   const [departments, setDepartments] = useState([]);
-  const [lock, setLock] = useState(true);
+  const [lock, setLock] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [status, setStatus] = useState(false);
@@ -229,8 +229,16 @@ function EmployeeEditor() {
         ctc: ctc,
       });
 
-      console.log("PUT request successful:");
-
+      console.log("PUT request successful");
+      console.log(
+        "Status" +
+          response.request.status +
+          " - Status Text" +
+          response.request.statusText +
+          " - Body : " +
+          response.data.data
+      );
+      
       setStatus(true);
     } catch (error) {
       console.log("Client-Error");

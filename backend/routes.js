@@ -73,7 +73,7 @@ router.get("/organization", async (req, res) => {
     // console.log("organization");
     // console.log(organization);
 
-    if (!organization.length === 1) {
+    if (organization.length === 1) {
       throw new Error("Collection has Duplicate data or No data");
     }
 
@@ -269,11 +269,13 @@ router.get("/employees", async (req, res) => {
 
 router.get("/employee/:empId", async (req, res) => {
   try {
-    const employee = await Employee.find({ empId: req.params.empId });
+    const employee = await MyModel.find({
+      empId: req.body.empId,
+    });
 
     // console.log(employee);
 
-    if (!employee.length === 1) {
+    if (employee === null) {
       throw new Error("Collection has No Data or Duplicate Data");
     }
 
@@ -332,11 +334,31 @@ router.put("/employee/:empId", async (req, res) => {
       throw new Error("Data inconsistent between Server and Database");
     }
 
-    res.status(200).send();
+    res.status(200).send({ data: "Put Successful" });
   } catch (error) {
     console.log("Server-Error");
     console.log(error);
     res.status(500).send({ data: "Put Failure : " + error });
+  }
+});
+
+router.delete("/employee/:empId", async (req, res) => {
+  try {
+    const employeeReturned = await Employee.findOneAndDelete({
+      empId: req.params.empId,
+    });
+
+    // console.log(employeeReturned);
+
+    if (employeeReturned === null) {
+      throw new Error("Collection has No Data or Duplicate Data");
+    }
+
+    res.status(200).send({ data: "Delete Successful" });
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Delete Failure : " + error });
   }
 });
 
@@ -350,7 +372,7 @@ router.post("/send-sms", async (req, res) => {
       to: `${dialCode}${phone}`, // custom recipent phone no
       body: `This login verification message. Your OTP is ${otp}.`, // custom organization name
     });
-    
+
     // console.log(response);
 
     res.status(200).send({ data: "Post Successful" });

@@ -18,6 +18,7 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />}>
       <Route path="" element={<Home />} />
+      <Route path="organization" element={<Organization />} />
       <Route path="employees/">
         <Route path="" element={<EmployeeList />} />
         <Route path=":empId" element={<EmployeeEditor />} />

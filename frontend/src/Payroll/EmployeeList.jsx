@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
+import axios from "axios";
 import { NavLink } from "react-router-dom";
-import EmployeeAdder from "./EmployeeAdder";
 
 function EmployeeList() {
   const [employees, setEmployees] = useState([]);
@@ -26,8 +26,17 @@ function EmployeeList() {
       console.log(data);
 
       if (!response.ok) {
-        alert("Status : " + response.status + " - " + response.statusText);
-        throw new Error(response.status + " - " + response.statusText);
+        alert(
+          "Status : " +
+            response.status +
+            " - " +
+            response.statusText +
+            " - " +
+            data.data
+        );
+        throw new Error(
+          response.status + " - " + response.statusText + " - " + data.data
+        );
       }
 
       setEmployees(data);
@@ -36,6 +45,37 @@ function EmployeeList() {
       console.log(error);
     }
   });
+
+  const deleteEmployee = async (empId) => {
+    try {
+      const response = await axios.delete(
+        `http://127.0.0.1:3000/app/employee/${empId}`
+      );
+
+      console.log("DELETE request successful");
+      console.log(
+        "Status : " +
+          response.request.status +
+          " - Status Text : " +
+          response.request.statusText +
+          " - Body : " +
+          response.data.data
+      );
+    } catch (error) {
+      console.log("Client Error");
+      console.log(error);
+      alert(
+        "Status : " +
+          error.request.status +
+          " - Status Text : " +
+          error.request.statusText +
+          " - Body : " +
+          error.response.data.data +
+          " - Message : " +
+          error.message
+      );
+    }
+  };
 
   return (
     <>
@@ -73,7 +113,16 @@ function EmployeeList() {
                     to={`/employees/${employee.empId}`}
                   >
                     Edit
-                  </NavLink>
+                  </NavLink>{" "}
+                  <button
+                    key={`delete${employee.empId}`}
+                    onClick={async () => {
+                      await deleteEmployee(employee.empId);
+                      window.location.reload();
+                    }}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}

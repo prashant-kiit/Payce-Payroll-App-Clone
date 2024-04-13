@@ -10,9 +10,11 @@ function Home() {
       <div> Go to below Links : </div>
       <div>
         <br />
-        <NavLink to="/employees">Employees List</NavLink>
+        <NavLink to="/organization">Organization</NavLink>
         <br />
         <NavLink to="/employees/add">Add Employee</NavLink>
+        <br />
+        <NavLink to="/employees">Employees List</NavLink>
       </div>
     </div>
   );

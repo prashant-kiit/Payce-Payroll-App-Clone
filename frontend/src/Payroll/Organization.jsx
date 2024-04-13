@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 
 function Organization() {
+  console.log("Organization");
+
   const [name, setName] = useState("");
   const [industry, setIndustry] = useState("");
   const [location, setLocation] = useState("");
@@ -13,15 +16,18 @@ function Organization() {
   const [locations, setLocations] = useState([]);
   const [dialcodes, setDialCodes] = useState([]);
   const [lock, setLock] = useState(true);
+  const [status, setStatus] = useState(false);
 
-  useEffect(async () => {
-    await getIndustrys();
-    await getLocations();
-    await getDailCodes();
-    await getStoredOrganization();
+  useEffect(() => {
+    (async () => {
+      await getIndustrys();
+      await getLocations();
+      await getDailCodes();
+      await getStoredOrganization();
+    })();
   }, []);
 
-  const getIndustrys = async () => {
+  const getIndustrys = useCallback(async () => {
     try {
       const response = await fetch("http://127.0.0.1:3000/app/industrys", {
         method: "GET",
@@ -47,9 +53,9 @@ function Organization() {
       console.log("Client-Error");
       console.log(error);
     }
-  };
+  }, []);
 
-  const getLocations = async () => {
+  const getLocations = useCallback(async () => {
     try {
       const response = await fetch("http://127.0.0.1:3000/app/locations", {
         method: "GET",
@@ -75,9 +81,9 @@ function Organization() {
       console.log("Client-Error");
       console.log(error);
     }
-  };
+  }, []);
 
-  const getDailCodes = async () => {
+  const getDailCodes = useCallback(async () => {
     try {
       const response = await fetch("http://127.0.0.1:3000/app/dialcodes", {
         method: "GET",
@@ -103,9 +109,9 @@ function Organization() {
       console.log("Client-Error");
       console.log(error);
     }
-  };
+  }, []);
 
-  const getStoredOrganization = async () => {
+  const getStoredOrganization = useCallback(async () => {
     try {
       const response = await fetch("http://127.0.0.1:3000/app/organization", {
         method: "GET",
@@ -138,9 +144,9 @@ function Organization() {
       console.log("Client-Error");
       console.log(error);
     }
-  };
+  }, []);
 
-  const postOrganization = async () => {
+  const postOrganization = useCallback(async () => {
     try {
       const response = await fetch("http://127.0.0.1:3000/app/organization", {
         method: "POST",
@@ -162,17 +168,42 @@ function Organization() {
       console.log("response");
       console.log(response);
       console.log("data");
-      console.log(await response.json());
+      const data = await response.json();
+      console.log(data.data);
 
       if (!response.ok) {
-        alert("Status : " + response.status + " - " + response.statusText);
-        throw new Error(response.status + " - " + response.statusText);
+        alert(
+          "Status : " +
+            response.status +
+            " - " +
+            response.statusText +
+            " - " +
+            data.data
+        );
+        throw new Error(
+          response.status + " - " + response.statusText + " - " + data.data
+        );
+      } else {
+        setStatus(true);
       }
-    } catch (err) {
+    } catch (error) {
       console.log("Client-Error");
-      console.log(err);
+      console.log(error);
     }
-  };
+  }, [name, industry, location, address, dialCode, phone, email, description]);
+
+  if (status) {
+    return (
+      <div>
+        <div>
+          <p>New Organization Profile Submitted</p>
+        </div>
+        <div>
+          <NavLink to="/">Home</NavLink>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -201,7 +232,7 @@ function Organization() {
           }}
         >
           {industrys.map((industry) => (
-            <option key={industry} value={industry.name}>
+            <option key={industry.id} value={industry.name}>
               {industry.name}
             </option>
           ))}
@@ -217,7 +248,7 @@ function Organization() {
           }}
         >
           {locations.map((location) => (
-            <option key={location} value={location.name}>
+            <option key={location.id} value={location.name}>
               {location.name}
             </option>
           ))}
@@ -235,7 +266,7 @@ function Organization() {
           }}
         />
         <br />
-        <label name="dialcode">Dail Code</label>{" "}
+        <label name="dialcode">Dial Code</label>{" "}
         <select
           name="dialcode"
           value={dialCode}
@@ -245,7 +276,7 @@ function Organization() {
           }}
         >
           {dialcodes.map((dialcode) => (
-            <option key={dialcode} value={dialcode.dialCode}>
+            <option key={dialcode.country} value={dialcode.dialCode}>
               {dialcode.dialCode}
             </option>
           ))}

@@ -235,9 +235,9 @@ function EmployeeAdder() {
       } else {
         setStatus(true);
       }
-    } catch (err) {
+    } catch (error) {
       console.log("Client-Error");
-      console.log(err);
+      console.log(error);
     }
   }, [
     empId,
@@ -273,6 +273,8 @@ function EmployeeAdder() {
           <NavLink to={`/employees/${empId}`}>
             Edit the Last Submitted Employee
           </NavLink>
+          <br />
+          <NavLink to="/employees">Employees List</NavLink>
         </div>
       </div>
     );
