@@ -71,9 +71,9 @@ router.get("/organization", async (req, res) => {
     const organization = await Organization.find();
 
     // console.log("organization");
-    // console.log(organization);
+    console.log(organization);
 
-    if (organization.length === 1) {
+    if (!organization.length === 1) {
       throw new Error("Collection has Duplicate data or No data");
     }
 
@@ -109,6 +109,7 @@ router.get("/locations", async (req, res) => {
 
     // console.log("locations");
     // console.log(locations);
+
     if (locations.length === 0) {
       throw new Error("Empty Collection");
     }
@@ -269,13 +270,14 @@ router.get("/employees", async (req, res) => {
 
 router.get("/employee/:empId", async (req, res) => {
   try {
-    const employee = await MyModel.find({
-      empId: req.body.empId,
+    console.log(req.params.empId);
+    const employee = await Employee.find({
+      empId: req.params.empId,
     });
 
-    // console.log(employee);
+    console.log(employee);
 
-    if (employee === null) {
+    if (employee === null || employee.length === 0) {
       throw new Error("Collection has No Data or Duplicate Data");
     }
 

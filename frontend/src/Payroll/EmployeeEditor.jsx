@@ -186,6 +186,7 @@ function EmployeeEditor() {
 
   const getEmployee = useCallback(async () => {
     try {
+      console.log("empId " + empId);
       const response = await axios.get(
         `http://127.0.0.1:3000/app/employee/${empId}`
       );
@@ -204,41 +205,52 @@ function EmployeeEditor() {
       setPhone(response.data[0].phone);
       setEmail(response.data[0].email);
       setCTC(response.data[0].ctc);
+
+      console.log(
+        "Status : " +
+          response.request.status +
+          " - Status Text : " +
+          response.request.statusText
+      );
     } catch (error) {
       setIsError(!isError);
-      setErrorMessage(error);
+      setErrorMessage(error.message + " - " + error.response.data.data);
 
       console.log("Client-Error");
       console.log(error);
+      // alert("Status : " + error.message + " - " + error.response.data.data);
     }
   }, []);
 
   const putEmployee = async () => {
     try {
-      await axios.put(`http://127.0.0.1:3000/app/employee/${empId}`, {
-        empId: empId,
-        name: name,
-        education: education,
-        designation: designation,
-        doj: doj,
-        location: location,
-        department: department,
-        dialCode: dialCode,
-        phone: phone,
-        email: email,
-        ctc: ctc,
-      });
+      const response = await axios.put(
+        `http://127.0.0.1:3000/app/employee/${empId}`,
+        {
+          empId: empId,
+          name: name,
+          education: education,
+          designation: designation,
+          doj: doj,
+          location: location,
+          department: department,
+          dialCode: dialCode,
+          phone: phone,
+          email: email,
+          ctc: ctc,
+        }
+      );
 
       console.log("PUT request successful");
       console.log(
-        "Status" +
+        "Status : " +
           response.request.status +
-          " - Status Text" +
+          " - Status Text : " +
           response.request.statusText +
           " - Body : " +
           response.data.data
       );
-      
+
       setStatus(true);
     } catch (error) {
       console.log("Client-Error");

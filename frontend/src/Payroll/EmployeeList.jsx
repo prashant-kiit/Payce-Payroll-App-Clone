@@ -4,6 +4,17 @@ import { NavLink } from "react-router-dom";
 
 function EmployeeList() {
   const [employees, setEmployees] = useState([]);
+  const [empId, setEmpId] = useState("");
+  const [name, setName] = useState("");
+  const [education, setEducation] = useState("");
+  const [designation, setDesignation] = useState("");
+  const [doj, setDOJ] = useState("");
+  const [location, setLocation] = useState("");
+  const [department, setDepartment] = useState("");
+  const [dialCode, setDialCode] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [ctc, setCTC] = useState("");
 
   useEffect(() => {
     getEmployees();
@@ -44,38 +55,41 @@ function EmployeeList() {
       console.log("Client-Error");
       console.log(error);
     }
-  });
+  }, [employees]);
 
-  const deleteEmployee = async (empId) => {
-    try {
-      const response = await axios.delete(
-        `http://127.0.0.1:3000/app/employee/${empId}`
-      );
+  const deleteEmployee = useCallback(
+    async (empId) => {
+      try {
+        const response = await axios.delete(
+          `http://127.0.0.1:3000/app/employee/${empId}`
+        );
 
-      console.log("DELETE request successful");
-      console.log(
-        "Status : " +
-          response.request.status +
-          " - Status Text : " +
-          response.request.statusText +
-          " - Body : " +
-          response.data.data
-      );
-    } catch (error) {
-      console.log("Client Error");
-      console.log(error);
-      alert(
-        "Status : " +
-          error.request.status +
-          " - Status Text : " +
-          error.request.statusText +
-          " - Body : " +
-          error.response.data.data +
-          " - Message : " +
-          error.message
-      );
-    }
-  };
+        console.log("DELETE request successful");
+        console.log(
+          "Status : " +
+            response.request.status +
+            " - Status Text : " +
+            response.request.statusText +
+            " - Body : " +
+            response.data.data
+        );
+      } catch (error) {
+        console.log("Client Error");
+        console.log(error);
+        alert(
+          "Status : " +
+            error.request.status +
+            " - Status Text : " +
+            error.request.statusText +
+            " - Body : " +
+            error.response.data.data +
+            " - Message : " +
+            error.message
+        );
+      }
+    },
+    [empId]
+  );
 
   return (
     <>
@@ -99,26 +113,129 @@ function EmployeeList() {
               <th key={"ctcheader"}>Cost To Company</th>
               <th key={"buttonheader"}>Action</th>
             </tr>
+            <tr key={"headerFilter"}>
+              <th key={"idheaderFilter"}>
+                <select
+                  type="text"
+                  key={"idheaderFilterSelect"}
+                  value={empId}
+                  onChange={(e) => {
+                    setEmpId(e.target.value);
+                  }}
+                >
+                  {employees.map((employee) => (
+                    <option key={employee.empId} value={employee.empId}>
+                      {employee.empId}
+                    </option>
+                  ))}
+                </select>
+              </th>
+              <th key={"nameheaderFilter"}>
+                <select
+                  type="text"
+                  key={"nameheaderFilterSelect"}
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                  }}
+                >
+                  {employees.map((employee) => (
+                    <option key={employee.empId} value={employee.name}>
+                      {employee.name}
+                    </option>
+                  ))}
+                </select>
+              </th>
+              <th key={"desiheaderFilter"}>
+                <select
+                  type="text"
+                  key={"desiheaderFilterSelect"}
+                  value={designation}
+                  onChange={(e) => {
+                    setDesignation(e.target.value);
+                  }}
+                >
+                  {employees.map((employee) => (
+                    <option key={employee.empId} value={employee.designation}>
+                      {employee.designation}
+                    </option>
+                  ))}
+                </select>
+              </th>
+              <th key={"deptheaderFilter"}>
+                <select
+                  type="text"
+                  key={"deptheaderFilterSelect"}
+                  value={department}
+                  onChange={(e) => {
+                    setDepartment(e.target.value);
+                  }}
+                >
+                  {employees.map((employee) => (
+                    <option key={employee.empId} value={employee.department}>
+                      {employee.department}
+                    </option>
+                  ))}
+                </select>
+              </th>
+              <th key={"emailheaderFilter"}>
+                <select
+                  type="text"
+                  key={"emailheaderFilterSelect"}
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                  }}
+                >
+                  {employees.map((employee) => (
+                    <option key={employee.empId} value={employee.email}>
+                      {employee.email}
+                    </option>
+                  ))}
+                </select>
+              </th>
+              <th key={"ctcheaderFilter"}>
+                <select
+                  type="text"
+                  key={"ctcheaderFilterSelect"}
+                  value={ctc}
+                  onChange={(e) => {
+                    setCTC(e.target.value);
+                  }}
+                >
+                  {employees.map((employee) => (
+                    <option key={employee.empId} value={employee.ctc}>
+                      {employee.ctc}
+                    </option>
+                  ))}
+                </select>
+              </th>
+              <th key={"buttonheaderFilter"}>
+                <button>Filter</button>
+              </th>
+            </tr>
             {employees.map((employee) => (
               <tr key={`row${employee.empId}`}>
-                <td key={`id${employee.empId}`}>{employee.empId}</td>
+                <td key={`id${employee.empId}`}>
+                  {" "}
+                  <NavLink
+                    key={`navlink${employee.empId}`}
+                    to={`/employees/${employee.empId}`}
+                  >
+                    {employee.empId}
+                  </NavLink>
+                </td>
                 <td key={`name${employee.empId}`}>{employee.name}</td>
                 <td key={`desi${employee.empId}`}>{employee.designation}</td>
                 <td key={`dept${employee.empId}`}>{employee.department}</td>
                 <td key={`email${employee.empId}`}>{employee.email}</td>
                 <td key={`ctc${employee.empId}`}>${employee.ctc} per year</td>
                 <td key={`action${employee.empId}`}>
-                  <NavLink
-                    key={`navlink${employee.empId}`}
-                    to={`/employees/${employee.empId}`}
-                  >
-                    Edit
-                  </NavLink>{" "}
                   <button
                     key={`delete${employee.empId}`}
                     onClick={async () => {
                       await deleteEmployee(employee.empId);
-                      window.location.reload();
+                      // window.location.reload();
                     }}
                   >
                     Delete
