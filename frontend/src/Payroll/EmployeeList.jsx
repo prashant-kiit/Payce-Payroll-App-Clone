@@ -6,15 +6,12 @@ function EmployeeList() {
   const [employees, setEmployees] = useState([]);
   const [empId, setEmpId] = useState("");
   const [name, setName] = useState("");
-  const [education, setEducation] = useState("");
   const [designation, setDesignation] = useState("");
-  const [doj, setDOJ] = useState("");
-  const [location, setLocation] = useState("");
   const [department, setDepartment] = useState("");
-  const [dialCode, setDialCode] = useState("");
-  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [ctc, setCTC] = useState("");
+  const [minCTC, setMinCTC] = useState(0);
+  const [maxCTC, setMaxCTC] = useState(1000000000);
 
   useEffect(() => {
     getEmployees();
@@ -195,20 +192,25 @@ function EmployeeList() {
                 </select>
               </th>
               <th key={"ctcheaderFilter"}>
-                <select
-                  type="text"
-                  key={"ctcheaderFilterSelect"}
-                  value={ctc}
-                  onChange={(e) => {
-                    setCTC(e.target.value);
+                <input
+                  type="number"
+                  key="minctc"
+                  placeholder="min ctc"
+                  value={minCTC}
+                  onClick={(e) => {
+                    setMinCTC(e.target.value);
                   }}
-                >
-                  {employees.map((employee) => (
-                    <option key={employee.empId} value={employee.ctc}>
-                      {employee.ctc}
-                    </option>
-                  ))}
-                </select>
+                />
+                <br />
+                <input
+                  type="number"
+                  key="maxctc"
+                  placeholder="max ctc"
+                  value={maxCTC}
+                  onClick={(e) => {
+                    setMaxCTC(e.target.value);
+                  }}
+                />
               </th>
               <th key={"buttonheaderFilter"}>
                 <button>Filter</button>
