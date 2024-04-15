@@ -10,8 +10,8 @@ function EmployeeList() {
   const [department, setDepartment] = useState("");
   const [email, setEmail] = useState("");
   const [ctc, setCTC] = useState("");
-  const [minCTC, setMinCTC] = useState(0);
-  const [maxCTC, setMaxCTC] = useState(1000000000);
+  const [minCTC, setMinCTC] = useState("");
+  const [maxCTC, setMaxCTC] = useState("");
 
   useEffect(() => {
     getEmployees();
@@ -31,6 +31,21 @@ function EmployeeList() {
 
       const data = await response.json();
       console.log("data");
+      // data.unshift({
+      //   ctc: "",
+      //   department: "",
+      //   designation: "",
+      //   dialCode: "",
+      //   doj: "",
+      //   education: "",
+      //   email: "",
+      //   empId: "",
+      //   location: "",
+      //   name: "",
+      //   phone: "",
+      //   __v: "",
+      //   _id: "",
+      // });
       console.log(data);
 
       if (!response.ok) {
@@ -120,6 +135,7 @@ function EmployeeList() {
                     setEmpId(e.target.value);
                   }}
                 >
+                  <option></option>
                   {employees.map((employee) => (
                     <option key={employee.empId} value={employee.empId}>
                       {employee.empId}
@@ -136,6 +152,7 @@ function EmployeeList() {
                     setName(e.target.value);
                   }}
                 >
+                  <option></option>
                   {employees.map((employee) => (
                     <option key={employee.empId} value={employee.name}>
                       {employee.name}
@@ -152,6 +169,7 @@ function EmployeeList() {
                     setDesignation(e.target.value);
                   }}
                 >
+                  <option></option>
                   {employees.map((employee) => (
                     <option key={employee.empId} value={employee.designation}>
                       {employee.designation}
@@ -168,6 +186,7 @@ function EmployeeList() {
                     setDepartment(e.target.value);
                   }}
                 >
+                  <option></option>
                   {employees.map((employee) => (
                     <option key={employee.empId} value={employee.department}>
                       {employee.department}
@@ -184,6 +203,7 @@ function EmployeeList() {
                     setEmail(e.target.value);
                   }}
                 >
+                  <option></option>
                   {employees.map((employee) => (
                     <option key={employee.empId} value={employee.email}>
                       {employee.email}
