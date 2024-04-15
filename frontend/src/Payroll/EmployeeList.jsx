@@ -197,8 +197,14 @@ function EmployeeList() {
                   key="minctc"
                   placeholder="min ctc"
                   value={minCTC}
-                  onClick={(e) => {
-                    setMinCTC(e.target.value);
+                  onChange={(e) => {
+                    if (/^\d+$/.test(e.target.value)) {
+                      setMinCTC(Number(e.target.value));
+                    } else if (e.target.value === "") {
+                      setMinCTC(e.target.value);
+                    } else {
+                      alert("Only Postive Numbers are allowed");
+                    }
                   }}
                 />
                 <br />
@@ -207,8 +213,14 @@ function EmployeeList() {
                   key="maxctc"
                   placeholder="max ctc"
                   value={maxCTC}
-                  onClick={(e) => {
-                    setMaxCTC(e.target.value);
+                  onChange={(e) => {
+                    if (/^\d+$/.test(e.target.value)) {
+                      setMaxCTC(Number(e.target.value));
+                    } else if (e.target.value === "") {
+                      setMaxCTC(e.target.value);
+                    } else {
+                      alert("Only Postive Numbers are allowed");
+                    }
                   }}
                 />
               </th>
