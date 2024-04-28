@@ -252,9 +252,51 @@ router.post("/employee", async (req, res) => {
 
 router.get("/employees", async (req, res) => {
   try {
-    const employees = await Employee.find();
+    console.log("Query Parameters:", req.query);
 
-    // console.log(employees);
+    Object.entries(req.query).map(([key, value]) => {
+      if (value === "") {
+        delete req.query[key];
+      }
+    });
+
+    if (
+      req.query.hasOwnProperty("minCTC") &&
+      req.query.hasOwnProperty("maxCTC")
+    ) {
+      req.query.ctc = {
+        $gt: parseInt(req.query["minCTC"]),
+        $lt: parseInt(req.query["maxCTC"]),
+      };
+      delete req.query["minCTC"];
+      delete req.query["maxCTC"];
+    }
+
+    if (
+      req.query.hasOwnProperty("minCTC") &&
+      !req.query.hasOwnProperty("maxCTC")
+    ) {
+      req.query.ctc = {
+        $gt: parseInt(req.query["minCTC"]),
+      };
+      delete req.query["minCTC"];
+    }
+
+    if (
+      !req.query.hasOwnProperty("minCTC") &&
+      req.query.hasOwnProperty("maxCTC")
+    ) {
+      req.query.ctc = {
+        $lt: parseInt(req.query["maxCTC"]),
+      };
+      delete req.query["maxCTC"];
+    }
+
+    console.log("Modified Query Parameters:", req.query);
+
+    const employees = await Employee.find(req.query);
+
+    console.log(employees);
 
     if (employees.length === 0) {
       throw new Error("No Data");

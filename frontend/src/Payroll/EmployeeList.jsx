@@ -3,23 +3,46 @@ import axios from "axios";
 import { NavLink } from "react-router-dom";
 
 function EmployeeList() {
+  // all employees
   const [employees, setEmployees] = useState([]);
+  // all employees details (unique)
+  const [empIds, setEmpIds] = useState([]);
+  const [names, setNames] = useState([]);
+  const [designations, setDesignations] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [emails, setEmails] = useState([]);
+  // filter condition
   const [empId, setEmpId] = useState("");
   const [name, setName] = useState("");
   const [designation, setDesignation] = useState("");
   const [department, setDepartment] = useState("");
   const [email, setEmail] = useState("");
-  const [ctc, setCTC] = useState("");
   const [minCTC, setMinCTC] = useState("");
   const [maxCTC, setMaxCTC] = useState("");
+  // const [ctc, setCTC] = useState("");
+  // filter trigger
+  const [filterTrigger, setFilterTrigger] = useState(0);
 
   useEffect(() => {
-    getEmployees();
-  }, []);
+    (async () => {
+      await getEmployees();
+    })();
+  }, [filterTrigger]);
 
-  const getEmployees = useCallback(async () => {
+  const getEmployees = async () => {
+    const url = "http://127.0.0.1:3000/app/employees";
+    const queryString = `empId=${empId}&name=${name}&designation=${designation}&department=${department}&email=${email}&minCTC=${minCTC}&maxCTC=${maxCTC}`;
+    console.log("Filter Criteria");
+    console.log(empId);
+    console.log(name);
+    console.log(designation);
+    console.log(department);
+    console.log(email);
+    console.log(minCTC);
+    console.log(maxCTC);
     try {
-      const response = await fetch("http://127.0.0.1:3000/app/employees", {
+      const response = await fetch(url + "?" + queryString, {
+        // ?
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=UTF-8",
@@ -31,21 +54,6 @@ function EmployeeList() {
 
       const data = await response.json();
       console.log("data");
-      // data.unshift({
-      //   ctc: "",
-      //   department: "",
-      //   designation: "",
-      //   dialCode: "",
-      //   doj: "",
-      //   education: "",
-      //   email: "",
-      //   empId: "",
-      //   location: "",
-      //   name: "",
-      //   phone: "",
-      //   __v: "",
-      //   _id: "",
-      // });
       console.log(data);
 
       if (!response.ok) {
@@ -63,11 +71,54 @@ function EmployeeList() {
       }
 
       setEmployees(data);
+      let empIdsSet = new Set();
+      let empIdsArray = [];
+      let namesSet = new Set();
+      let namesArray = [];
+      let designationsSet = new Set();
+      let designationsArray = [];
+      let departmentsSet = new Set();
+      let departmentsArray = [];
+      let emailsSet = new Set();
+      let emailsArray = [];
+      data.map((employee) => {
+        if (!empIdsSet.has(employee.empId)) {
+          empIdsArray.push(employee.empId);
+          empIdsSet.add(employee.empId);
+        }
+        if (!namesSet.has(employee.name)) {
+          namesArray.push(employee.name);
+          namesSet.add(employee.name);
+        }
+        if (!designationsSet.has(employee.designation)) {
+          designationsArray.push(employee.designation);
+          designationsSet.add(employee.designation);
+        }
+        if (!departmentsSet.has(employee.department)) {
+          departmentsArray.push(employee.department);
+          departmentsSet.add(employee.department);
+        }
+        if (!emailsSet.has(employee.email)) {
+          emailsArray.push(employee.email);
+          emailsSet.add(employee.email);
+        }
+      });
+
+      setEmpIds(empIdsArray);
+      setNames(namesArray);
+      setDesignations(designationsArray);
+      setDepartments(departmentsArray);
+      setEmails(emailsArray);
+      console.log(empIdsArray);
+      console.log(namesArray);
+      console.log(designationsArray);
+      console.log(departmentsArray);
+      console.log(emailsArray);
     } catch (error) {
       console.log("Client-Error");
       console.log(error);
     }
-  }, [employees]);
+  };
 
   const deleteEmployee = useCallback(
     async (empId) => {
@@ -136,9 +187,9 @@ function EmployeeList() {
                   }}
                 >
                   <option></option>
-                  {employees.map((employee) => (
-                    <option key={employee.empId} value={employee.empId}>
-                      {employee.empId}
+                  {empIds.map((empId) => (
+                    <option key={empId} value={empId}>
+                      {empId}
                     </option>
                   ))}
                 </select>
@@ -153,9 +204,9 @@ function EmployeeList() {
                   }}
                 >
                   <option></option>
-                  {employees.map((employee) => (
-                    <option key={employee.empId} value={employee.name}>
-                      {employee.name}
+                  {names.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
                     </option>
                   ))}
                 </select>
@@ -170,9 +221,9 @@ function EmployeeList() {
                   }}
                 >
                   <option></option>
-                  {employees.map((employee) => (
-                    <option key={employee.empId} value={employee.designation}>
-                      {employee.designation}
+                  {designations.map((designation) => (
+                    <option key={designation} value={designation}>
+                      {designation}
                     </option>
                   ))}
                 </select>
@@ -187,9 +238,9 @@ function EmployeeList() {
                   }}
                 >
                   <option></option>
-                  {employees.map((employee) => (
-                    <option key={employee.empId} value={employee.department}>
-                      {employee.department}
+                  {departments.map((department) => (
+                    <option key={department} value={department}>
+                      {department}
                     </option>
                   ))}
                 </select>
@@ -204,9 +255,9 @@ function EmployeeList() {
                   }}
                 >
                   <option></option>
-                  {employees.map((employee) => (
-                    <option key={employee.empId} value={employee.email}>
-                      {employee.email}
+                  {emails.map((email) => (
+                    <option key={email} value={email}>
+                      {email}
                     </option>
                   ))}
                 </select>
@@ -215,7 +266,6 @@ function EmployeeList() {
                 <input
                   type="number"
                   key="minctc"
-                  placeholder="min ctc"
                   value={minCTC}
                   onChange={(e) => {
                     if (/^\d+$/.test(e.target.value)) {
@@ -231,7 +281,6 @@ function EmployeeList() {
                 <input
                   type="number"
                   key="maxctc"
-                  placeholder="max ctc"
                   value={maxCTC}
                   onChange={(e) => {
                     if (/^\d+$/.test(e.target.value)) {
@@ -244,8 +293,30 @@ function EmployeeList() {
                   }}
                 />
               </th>
-              <th key={"buttonheaderFilter"}>
-                <button>Filter</button>
+              <th key={"buttonheaderFilterClear"}>
+                <button
+                  key="filterbutton"
+                  onClick={() => {
+                    setFilterTrigger(filterTrigger + 1);
+                  }}
+                >
+                  Filter
+                </button>
+                <br />
+                <button
+                  key="clearbutton"
+                  onClick={() => {
+                    setEmpId("");
+                    setName("");
+                    setDepartment("");
+                    setDesignation("");
+                    setEmail("");
+                    setMinCTC("");
+                    setMaxCTC("");
+                  }}
+                >
+                  Clear
+                </button>
               </th>
             </tr>
             {employees.map((employee) => (
