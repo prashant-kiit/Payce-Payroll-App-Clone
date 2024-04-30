@@ -14,6 +14,7 @@ import DialCode from "./models/dialcode.js";
 import Designation from "./models/designation.js";
 import Department from "./models/department.js";
 import Qualification from "./models/education.js";
+import SalaryComponent from "./models/salaryComponent.js";
 
 const router = Router();
 // dotenv.config();
@@ -242,7 +243,7 @@ router.post("/employee", async (req, res) => {
 
     if (error.code === 11000 || error.code === 11001) {
       res.statusMessage =
-        "Employee Profile is not Unique. Atleast aany one of Emp Id, Phone, Email needs to be changed";
+        "Employee Profile is not Unique. Atleast any one of Emp Id, Phone, Email needs to be changed";
     }
     console.log(error);
 
@@ -423,6 +424,53 @@ router.post("/send-sms", async (req, res) => {
   } catch (error) {
     console.log("Server-Error");
     console.log(error);
+    res.status(500).send({ data: "Post Failure : " + error });
+  }
+});
+
+router.post("/salaryComponent", async (req, res) => {
+  try {
+    const salaryComponent = new SalaryComponent({
+      name: req.body.name,
+      payType: req.body.payType,
+      calculationType: req.body.calculationType,
+      amount: req.body.amount,
+    });
+
+    console.log(salaryComponent);
+
+    const salaryComponentReturned = await salaryComponent.save();
+
+    console.log(salaryComponentReturned);
+
+    let temp1 = {};
+    Object.assign(temp1, salaryComponent);
+    console.log(salaryComponent);
+    console.log(temp1);
+    delete temp1._doc._id;
+    delete temp1._doc.__v;
+
+    let temp2 = {};
+    Object.assign(temp2, salaryComponentReturned);
+    console.log(salaryComponentReturned);
+    console.log(temp2);
+    delete temp2._doc._id;
+    delete temp2._doc.__v;
+
+    if (!_.isEqual(temp1._doc, temp2._doc)) {
+      throw new Error("Data inconsistent between Server and Database");
+    }
+
+    res.status(200).send({ data: "Post Successful" });
+  } catch (error) {
+    console.log("Server-Error");
+
+    if (error.code === 11000 || error.code === 11001) {
+      res.statusMessage =
+        "Salary Component Name is not Unique";
+    }
+    console.log(error);
+
     res.status(500).send({ data: "Post Failure : " + error });
   }
 });
