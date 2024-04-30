@@ -13,7 +13,7 @@ import EmployeeList from "./Payroll/EmployeeList.jsx";
 import EmployeeAdder from "./Payroll/EmployeeAdder.jsx";
 import EmployeeEditor from "./Payroll/EmployeeEditor.jsx";
 import PayStructure from "./Payroll/PayStructure.jsx";
-import SalaryComponent from "./Payroll/SalaryComponent.jsx";
+import SalaryComponentAdder from "./Payroll/SalaryComponent.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -25,6 +25,9 @@ const router = createBrowserRouter(
         <Route path=":empId" element={<EmployeeEditor />} />
         <Route path="add" element={<EmployeeAdder />} />
       </Route>
+      <Route path="salaryComponent/">
+        <Route path="add" element={<SalaryComponentAdder />} />
+      </Route>
       <Route path="*" element={<div>Not Found</div>} />
     </Route>
   )
@@ -32,7 +35,7 @@ const router = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   //<React.StrictMode>
-  // <RouterProvider router={router} />
-  <SalaryComponent />
+  <RouterProvider router={router} />
+  // <SalaryComponent />
   //</React.StrictMode>,
 );

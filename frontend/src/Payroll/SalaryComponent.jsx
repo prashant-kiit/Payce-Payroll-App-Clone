@@ -1,12 +1,13 @@
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import { NavLink } from "react-router-dom";
 
-function SalaryComponent() {
+function SalaryComponentAdder() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
+    formState: { errors, isSubmitting, isSubmitted },
+    // reset,
     getValues,
   } = useForm();
 
@@ -48,8 +49,23 @@ function SalaryComponent() {
         Error Body = ${error.response.data.data}`
       );
     }
-    reset();
+    // reset();
   };
+
+  if (isSubmitted) {
+    return (
+      <div>
+        <p>Form submitted successfully</p>
+        <button
+          onClick={() => {
+            window.location.reload();
+          }}
+        >
+          Add Another Salary Component
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -130,4 +146,4 @@ function SalaryComponent() {
   );
 }
 
-export default SalaryComponent;
+export default SalaryComponentAdder;

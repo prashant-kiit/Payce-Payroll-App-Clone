@@ -15,6 +15,8 @@ function Home() {
         <NavLink to="/employees/add">Add Employee</NavLink>
         <br />
         <NavLink to="/employees">Employees List</NavLink>
+        <br />
+        <NavLink to="/salaryComponent/add">Add Salary Component</NavLink>
       </div>
     </div>
   );
