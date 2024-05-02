@@ -466,12 +466,29 @@ router.post("/salaryComponent", async (req, res) => {
     console.log("Server-Error");
 
     if (error.code === 11000 || error.code === 11001) {
-      res.statusMessage =
-        "Salary Component Name is not Unique";
+      res.statusMessage = "Salary Component Name is not Unique";
     }
     console.log(error);
 
     res.status(500).send({ data: "Post Failure : " + error });
+  }
+});
+
+router.get("/salaryComponents", async (req, res) => {
+  try {
+    const salaryComponents = await SalaryComponent.find();
+
+    console.log(salaryComponents);
+
+    if (salaryComponents.length === 0) {
+      throw new Error("No Data");
+    }
+    // throw new Error("Fake Error");
+    res.status(200).send(salaryComponents);
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 

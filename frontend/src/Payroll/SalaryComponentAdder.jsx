@@ -3,22 +3,18 @@ import axios from "axios";
 import { NavLink } from "react-router-dom";
 
 function SalaryComponentAdder() {
+  console.log("SalaryComponentAdder Renders");
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isSubmitted },
-    // reset,
     getValues,
+    setError,
+    clearErrors,
+    formState: { errors, isSubmitting, isSubmitted, isSubmitSuccessful },
+    reset,
   } = useForm();
 
   const postSalaryComponent = async (data) => {
-    // await new Promise((resolve) => setTimeout(resolve, 1000));
-    // console.log({
-    //   name: getValues("name"),
-    //   payType: getValues("payType"),
-    //   calculationType: getValues("calculationType"),
-    //   amount: getValues("amount"),
-    // });
     try {
       const response = await axios.post(
         "http://127.0.0.1:3000/app/salaryComponent",
@@ -34,25 +30,50 @@ function SalaryComponentAdder() {
           },
         }
       );
-
+      console.log(isSubmitted);
+      console.log(isSubmitSuccessful);
       console.log("POST request successful");
-      console.log(`Status = ${response.status}, 
+      console.log(`Status = ${response.status},
       Status Text = ${response.statusText} and
-      Error Body = ${response.data.data}`);
+      Body = ${response.data.data}`);
     } catch (error) {
       console.log("Client Error");
       console.log(error);
-      alert(
-        `Status = ${error.response.status}, 
-        Status Text = ${error.response.statusText},
-        Error Message = ${error.message} and
-        Error Body = ${error.response.data.data}`
-      );
+      setError("clientError", {
+        type: "custom",
+        message: `Status = ${error.response.status}, Status Text = ${error.response.statusText}, Error Message = ${error.message} and Error Body = ${error.response.data.data}`,
+      });
     }
-    // reset();
   };
 
-  if (isSubmitted) {
+  const onError = (errors) => {
+    console.log(errors);
+    console.log(isSubmitted);
+    console.log(isSubmitSuccessful);
+  };
+
+  if (errors.clientError) {
+    return (
+      <div>
+        {errors.clientError && (
+          <p>Error : {JSON.stringify(errors.clientError.message)}</p>
+        )}
+
+        <button
+          onClick={() => {
+            window.location.reload();
+          }}
+        >
+          Add Another Salary Component
+        </button>
+        <br />
+        <br />
+        <NavLink to="/salaryComponents">Salary Component List</NavLink>
+      </div>
+    );
+  }
+
+  if (isSubmitSuccessful) {
     return (
       <div>
         <p>Form submitted successfully</p>
@@ -63,6 +84,9 @@ function SalaryComponentAdder() {
         >
           Add Another Salary Component
         </button>
+        <br />
+        <br />
+        <NavLink to="/salaryComponents">Salary Component List</NavLink>
       </div>
     );
   }
@@ -74,7 +98,7 @@ function SalaryComponentAdder() {
         <p>ADD SALARY COMPONENT</p>
       </div>
       <div>
-        <form onSubmit={handleSubmit(postSalaryComponent)}>
+        <form onSubmit={handleSubmit(postSalaryComponent, onError)}>
           <label htmlFor="name">Component Name</label>
           <br />
           <input
@@ -86,11 +110,7 @@ function SalaryComponentAdder() {
             placeholder="component name"
           />
           <br />
-          {errors.name && (
-            <>
-              <p>{`${errors.name.message}`}</p>
-            </>
-          )}
+          {errors.name && <p>Error : {`${errors.name.message}`}</p>}
 
           <label htmlFor="payType">Pay Type</label>
           <br />
@@ -131,11 +151,7 @@ function SalaryComponentAdder() {
             placeholder="amount"
           />
           <br />
-          {errors.amount && (
-            <>
-              <p>{`${errors.amount.message}`}</p>
-            </>
-          )}
+          {errors.amount && <p>Error : {`${errors.amount.message}`}</p>}
 
           <button disabled={isSubmitting} type="submit">
             Submit
