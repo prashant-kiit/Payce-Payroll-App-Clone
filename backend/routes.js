@@ -478,7 +478,7 @@ router.get("/salaryComponents", async (req, res) => {
   try {
     const salaryComponents = await SalaryComponent.find();
 
-    console.log(salaryComponents);
+    // console.log(salaryComponents);
 
     if (salaryComponents.length === 0) {
       throw new Error("No Data");
@@ -489,6 +489,88 @@ router.get("/salaryComponents", async (req, res) => {
     console.log("Server-Error");
     console.log(error);
     res.status(500).send({ data: "Get Failure : " + error });
+  }
+});
+
+router.get("/salaryComponent/:name", async (req, res) => {
+  try {
+    console.log(req.params.name);
+    const salaryComponent = await SalaryComponent.find({
+      name: req.params.name,
+    });
+
+    console.log(salaryComponent);
+
+    if (salaryComponent.length === 0) {
+      throw new Error("Collection has No Data");
+    }
+
+    res.status(200).send(salaryComponent);
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
+  }
+});
+
+router.put("/salaryComponent", async (req, res) => {
+  try {
+    const salaryComponentNew = new SalaryComponent({
+      name: req.body.name,
+      payType: req.body.payType,
+      calculationType: req.body.calculationType,
+      amount: req.body.amount,
+    });
+
+    const salaryComponentReturned = await SalaryComponent.findOneAndUpdate(
+      { name: req.body.name },
+      {
+        payType: req.body.payType,
+        calculationType: req.body.calculationType,
+        amount: req.body.amount,
+      },
+      { new: true }
+    );
+
+    let temp1 = {};
+    Object.assign(temp1, salaryComponentNew);
+    delete temp1._doc._id;
+    delete temp1._doc.__v;
+
+    let temp2 = {};
+    Object.assign(temp2, salaryComponentReturned);
+    delete temp2._doc._id;
+    delete temp2._doc.__v;
+
+    if (!_.isEqual(temp1._doc, temp2._doc)) {
+      throw new Error("Data inconsistent between Server and Database");
+    }
+
+    res.status(200).send({ data: "Put Successful" });
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Put Failure : " + error });
+  }
+});
+
+router.delete("/salaryComponent/:name", async (req, res) => {
+  try {
+    const salaryComponentReturned = await SalaryComponent.findOneAndDelete({
+      name: req.params.name,
+    });
+
+    console.log(salaryComponentReturned);
+
+    if (salaryComponentReturned === null) {
+      throw new Error("Collection has No Data");
+    }
+
+    res.status(200).send({ data: "Delete Successful" });
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Delete Failure : " + error });
   }
 });
 

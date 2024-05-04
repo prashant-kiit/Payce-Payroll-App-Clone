@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { NavLink } from "react-router-dom";
@@ -11,7 +11,7 @@ function SalaryComponentList() {
     },
   });
 
-  const getSalaryComponents = async () => {
+  const getSalaryComponents = useCallback(async () => {
     const response = await axios.get(
       "http://127.0.0.1:3000/app/salaryComponents"
     );
@@ -21,7 +21,7 @@ function SalaryComponentList() {
     console.log(response);
 
     return response.data;
-  };
+  }, []);
 
   const deleteSalaryComponent = useCallback(
     async (name) => {
@@ -33,12 +33,13 @@ function SalaryComponentList() {
         console.log("DELETE request successful");
         console.log(
           "Status : " +
-            response.response.status +
+            response.status +
             " - Status Text : " +
-            response.response.statusText +
+            response.statusText +
             " - Body : " +
             response.data.data
         );
+        // console.log(response);
       } catch (error) {
         console.log("Client Error");
         console.log(error);
@@ -109,7 +110,7 @@ function SalaryComponentList() {
                   {" "}
                   <NavLink
                     key={`navlink${salaryComponent.name}`}
-                    to={`/salaryComponent/${salaryComponent.name}`}
+                    to={`/salaryComponents/${salaryComponent.name}`}
                   >
                     {salaryComponent.name}
                   </NavLink>
@@ -128,7 +129,7 @@ function SalaryComponentList() {
                     key={`delete${salaryComponent.name}`}
                     onClick={async () => {
                       await deleteSalaryComponent(salaryComponent.name);
-                      // window.location.reload();
+                      window.location.reload();
                     }}
                   >
                     Delete

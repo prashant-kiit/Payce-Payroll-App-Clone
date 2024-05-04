@@ -1,22 +1,74 @@
+import { useCallback } from "react";
+import { useParams, NavLink } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import { NavLink } from "react-router-dom";
 
-function SalaryComponentAdder() {
-  console.log("SalaryComponentAdder Renders");
+function SalaryComponentEditor() {
+  console.log("SalaryComponentEditor Renders");
+  const { name } = useParams();
+
   const {
     register,
     handleSubmit,
     getValues,
     setError,
-    clearErrors,
     formState: { errors, isSubmitting, isSubmitted, isSubmitSuccessful },
-    reset,
-  } = useForm();
+  } = useForm({
+    defaultValues: async () => {
+      const defaultData = await getSalaryComponent(name);
+      return {
+        name: defaultData.name,
+        payType: defaultData.payType,
+        calculationType: defaultData.calculationType,
+        amount: defaultData.amount,
+      };
+    },
+  });
 
-  const postSalaryComponent = async (data) => {
+  const getSalaryComponent = async (name) => {
     try {
-      const response = await axios.post(
+      const response = await axios.get(
+        `http://127.0.0.1:3000/app/salaryComponent/${name}`
+      );
+
+      console.log(
+        "Status : " +
+          response.status +
+          " - Status Text : " +
+          response.statusText
+      );
+
+      console.log(response.data);
+
+      response.data.map((x) => {
+        console.log(x.name);
+        console.log(x.payType);
+        console.log(x.calculationType);
+        console.log(x.amount);
+      });
+
+      return response.data[0];
+    } catch (error) {
+      console.log("Client Error");
+      console.log(error);
+      setError("deleteError", {
+        type: "custom",
+        message: `Status = ${error.response.status}, Status Text = ${error.response.statusText}, Error Message = ${error.message} and Error Body = ${error.response.data.data}`,
+      });
+    }
+  };
+
+  const putSalaryComponent = async () => {
+    try {
+      console.log({
+        name: getValues("name"),
+        payType: getValues("payType"),
+        calculationType: getValues("calculationType"),
+        amount: getValues("amount"),
+      });
+
+      const response = await axios.put(
         "http://127.0.0.1:3000/app/salaryComponent",
         {
           name: getValues("name"),
@@ -30,16 +82,17 @@ function SalaryComponentAdder() {
           },
         }
       );
+
       console.log(isSubmitted);
       console.log(isSubmitSuccessful);
-      console.log("POST request successful");
-      console.log(`Status = ${response.status},
-      Status Text = ${response.statusText} and
-      Body = ${response.data.data}`);
+      console.log("PUT request successful");
+      console.log(
+        `Status = ${response.status}, Status Text = ${response.statusText} and Body = ${response.data.data}`
+      );
     } catch (error) {
       console.log("Client Error");
       console.log(error);
-      setError("clientError", {
+      setError("putError", {
         type: "custom",
         message: `Status = ${error.response.status}, Status Text = ${error.response.statusText}, Error Message = ${error.message} and Error Body = ${error.response.data.data}`,
       });
@@ -52,21 +105,26 @@ function SalaryComponentAdder() {
     console.log(isSubmitSuccessful);
   };
 
-  if (errors.clientError) {
+  if (errors.deleteError) {
     return (
       <div>
-        {errors.clientError && (
-          <p>Error : {JSON.stringify(errors.clientError.message)}</p>
+        {errors.deleteError && (
+          <p>Error : {JSON.stringify(errors.deleteError.message)}</p>
         )}
 
-        <button
-          onClick={() => {
-            window.location.reload();
-          }}
-        >
-          Add Another Salary Component
-        </button>
         <br />
+        <NavLink to="/salaryComponents">Salary Component List</NavLink>
+      </div>
+    );
+  }
+
+  if (errors.putError) {
+    return (
+      <div>
+        {errors.putError && (
+          <p>Error : {JSON.stringify(errors.putError.message)}</p>
+        )}
+
         <br />
         <NavLink to="/salaryComponents">Salary Component List</NavLink>
       </div>
@@ -77,14 +135,6 @@ function SalaryComponentAdder() {
     return (
       <div>
         <p>Form submitted successfully</p>
-        <button
-          onClick={() => {
-            window.location.reload();
-          }}
-        >
-          Add Another Salary Component
-        </button>
-        <br />
         <br />
         <NavLink to="/salaryComponents">Salary Component List</NavLink>
       </div>
@@ -95,10 +145,10 @@ function SalaryComponentAdder() {
     <div>
       <div>
         <h2>Payroll App</h2>
-        <p>ADD SALARY COMPONENT</p>
+        <p>EDIT SALARY COMPONENT</p>
       </div>
       <div>
-        <form onSubmit={handleSubmit(postSalaryComponent, onError)}>
+        <form onSubmit={handleSubmit(putSalaryComponent, onError)}>
           <label htmlFor="name">Component Name</label>
           <br />
           <input
@@ -108,6 +158,7 @@ function SalaryComponentAdder() {
             })}
             type="text"
             placeholder="component name"
+            disabled
           />
           <br />
           {errors.name && <p>Error : {`${errors.name.message}`}</p>}
@@ -141,7 +192,7 @@ function SalaryComponentAdder() {
             placeholder="amount"
           />
           <br />
-          {errors.amount && <p>Error : {`${errors.amount.message}`}</p>}
+          {errors.amount && <p>Error : {errors.amount.message}</p>}
 
           <button disabled={isSubmitting} type="submit">
             Submit
@@ -152,4 +203,4 @@ function SalaryComponentAdder() {
   );
 }
 
-export default SalaryComponentAdder;
+export default SalaryComponentEditor;
