@@ -59,14 +59,17 @@ function SalaryComponentList() {
   );
 
   if (salaryComponents.isError) {
+    // console.log(salaryComponents.error);
     return (
       <div>
         <p>
           {JSON.stringify(
             "Error code = " +
-              salaryComponents.error.status +
+              salaryComponents.error.response.status +
               " and message = " +
-              salaryComponents.error.message
+              salaryComponents.error.message +
+              " and body = " +
+              salaryComponents.error.response.data.data
           )}
         </p>
         <button
@@ -76,6 +79,8 @@ function SalaryComponentList() {
         >
           Reload
         </button>
+        <br />
+        <NavLink to="/salaryComponents/add">Add Salary Component</NavLink>
       </div>
     );
   }

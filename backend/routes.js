@@ -15,6 +15,7 @@ import Designation from "./models/designation.js";
 import Department from "./models/department.js";
 import Qualification from "./models/education.js";
 import SalaryComponent from "./models/salaryComponent.js";
+import SalaryTemplate from "./models/salaryTemplate.js";
 
 const router = Router();
 // dotenv.config();
@@ -483,8 +484,34 @@ router.get("/salaryComponents", async (req, res) => {
     if (salaryComponents.length === 0) {
       throw new Error("No Data");
     }
-    // throw new Error("Fake Error");
+
     res.status(200).send(salaryComponents);
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
+  }
+});
+
+router.get("/salaryComponentNames", async (req, res) => {
+  try {
+    const salaryComponents = await SalaryComponent.find();
+
+    // console.log(salaryComponents);
+
+    if (salaryComponents.length === 0) {
+      throw new Error("No Data");
+    }
+
+    let salaryComponentNames = [];
+
+    salaryComponents.map((salaryComponent) => {
+      salaryComponentNames.push(salaryComponent.name);
+    });
+
+    // console.log(salaryComponentNames);
+
+    res.status(200).send(salaryComponentNames);
   } catch (error) {
     console.log("Server-Error");
     console.log(error);
@@ -571,6 +598,52 @@ router.delete("/salaryComponent/:name", async (req, res) => {
     console.log("Server-Error");
     console.log(error);
     res.status(500).send({ data: "Delete Failure : " + error });
+  }
+});
+
+router.post("/salaryTemplate", async (req, res) => {
+  try {
+    const salaryTemplate = new SalaryTemplate({
+      profile: req.body.profile,
+      basic: req.body.basic,
+      ctc: req.body.ctc,
+      salaryComponents: req.body.salaryComponents,
+    });
+
+    console.log(salaryTemplate);
+
+    const salaryTemplateReturned = await salaryTemplate.save();
+
+    console.log(salaryTemplateReturned);
+
+    let temp1 = {};
+    Object.assign(temp1, salaryTemplate);
+    console.log(salaryTemplate);
+    console.log(temp1);
+    delete temp1._doc._id;
+    delete temp1._doc.__v;
+
+    let temp2 = {};
+    Object.assign(temp2, salaryTemplateReturned);
+    console.log(salaryTemplateReturned);
+    console.log(temp2);
+    delete temp2._doc._id;
+    delete temp2._doc.__v;
+
+    if (!_.isEqual(temp1._doc, temp2._doc)) {
+      throw new Error("Data inconsistent between Server and Database");
+    }
+
+    res.status(200).send({ data: "Post Successful" });
+  } catch (error) {
+    console.log("Server-Error");
+
+    if (error.code === 11000 || error.code === 11001) {
+      res.statusMessage = "Salary Template is not Unique";
+    }
+    console.log(error);
+
+    res.status(500).send({ data: "Post Failure : " + error });
   }
 });
 

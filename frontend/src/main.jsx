@@ -13,10 +13,10 @@ import Organization from "./Payroll/Organization.jsx";
 import EmployeeList from "./Payroll/EmployeeList.jsx";
 import EmployeeAdder from "./Payroll/EmployeeAdder.jsx";
 import EmployeeEditor from "./Payroll/EmployeeEditor.jsx";
-import PayStructure from "./Payroll/PayStructure.jsx";
 import SalaryComponentAdder from "./Payroll/SalaryComponentAdder.jsx";
 import SalaryComponentList from "./Payroll/SalaryComponentList.jsx";
 import SalaryComponentEditor from "./Payroll/SalaryComponentEditor.jsx";
+import SalaryTemplateAdder from "./Payroll/SalaryTemplateAdder.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -32,6 +32,9 @@ const router = createBrowserRouter(
         <Route path="" element={<SalaryComponentList />} />
         <Route path=":name" element={<SalaryComponentEditor />} />
         <Route path="add" element={<SalaryComponentAdder />} />
+      </Route>
+      <Route path="salaryTemplates/">
+        <Route path="add" element={<SalaryTemplateAdder />} />
       </Route>
       <Route path="*" element={<div>Not Found</div>} />
     </Route>
