@@ -13,7 +13,12 @@ function SalaryComponentList() {
 
   const getSalaryComponents = useCallback(async () => {
     const response = await axios.get(
-      "http://127.0.0.1:3000/app/salaryComponents"
+      "http://127.0.0.1:3000/app/salaryComponents",
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
     console.log(
       "Status : " + response.status + " - Status Text : " + response.statusText

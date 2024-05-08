@@ -509,10 +509,6 @@ function EmployeeAdder() {
           {lock ? "Edit" : "Save"}
         </button>
       </div>
-      <div>
-        <br />
-        <NavLink to="/employees">Employees List</NavLink>
-      </div>
     </div>
   );
 }

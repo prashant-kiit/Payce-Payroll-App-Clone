@@ -526,7 +526,7 @@ router.get("/salaryComponent/:name", async (req, res) => {
       name: req.params.name,
     });
 
-    console.log(salaryComponent);
+    // console.log(salaryComponent);
 
     if (salaryComponent.length === 0) {
       throw new Error("Collection has No Data");
@@ -587,7 +587,7 @@ router.delete("/salaryComponent/:name", async (req, res) => {
       name: req.params.name,
     });
 
-    console.log(salaryComponentReturned);
+    // console.log(salaryComponentReturned);
 
     if (salaryComponentReturned === null) {
       throw new Error("Collection has No Data");
@@ -610,11 +610,11 @@ router.post("/salaryTemplate", async (req, res) => {
       salaryComponents: req.body.salaryComponents,
     });
 
-    console.log(salaryTemplate);
+    // console.log(salaryTemplate);
 
     const salaryTemplateReturned = await salaryTemplate.save();
 
-    console.log(salaryTemplateReturned);
+    // console.log(salaryTemplateReturned);
 
     let temp1 = {};
     Object.assign(temp1, salaryTemplate);
@@ -644,6 +644,108 @@ router.post("/salaryTemplate", async (req, res) => {
     console.log(error);
 
     res.status(500).send({ data: "Post Failure : " + error });
+  }
+});
+
+router.get("/salaryTemplates", async (req, res) => {
+  try {
+    const salaryTemplates = await SalaryTemplate.find();
+
+    // console.log(salaryTemplates);
+
+    if (salaryTemplates.length === 0) {
+      throw new Error("No Data");
+    }
+
+    res.status(200).send(salaryTemplates);
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
+  }
+});
+
+router.delete("/salaryTemplate/:profile", async (req, res) => {
+  try {
+    const salaryTemplateReturned = await SalaryTemplate.findOneAndDelete({
+      profile: req.params.profile,
+    });
+
+    // console.log(salaryTemplateReturned);
+
+    if (salaryTemplateReturned === null) {
+      throw new Error("Collection has No Data");
+    }
+
+    res.status(200).send({ data: "Delete Successful" });
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Delete Failure : " + error });
+  }
+});
+
+router.get("/salaryTemplate/:profile", async (req, res) => {
+  try {
+    console.log(req.params.profile);
+    const salaryTemplate = await SalaryTemplate.find({
+      profile: req.params.profile,
+    });
+
+    console.log(salaryTemplate);
+
+    if (salaryTemplate.length === 0) {
+      throw new Error("Collection has No Data");
+    }
+
+    res.status(200).send(salaryTemplate);
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
+  }
+});
+
+router.put("/salaryTemplate", async (req, res) => {
+  try {
+    // throw new Error("Fake Data");
+
+    const salaryTemplateNew = new SalaryTemplate({
+      profile: req.body.profile,
+      basic: req.body.basic,
+      ctc: req.body.ctc,
+      salaryComponents: req.body.salaryComponents,
+    });
+
+    const salaryTemplateReturned = await SalaryTemplate.findOneAndUpdate(
+      { profile: req.body.profile },
+      {
+        basic: req.body.basic,
+        ctc: req.body.ctc,
+        salaryComponents: req.body.salaryComponents,
+      },
+      { new: true }
+    );
+
+    let temp1 = {};
+    Object.assign(temp1, salaryTemplateNew);
+    delete temp1._doc._id;
+    delete temp1._doc.__v;
+
+    let temp2 = {};
+    Object.assign(temp2, salaryTemplateReturned);
+    delete temp2._doc._id;
+    delete temp2._doc.__v;
+
+    if (!_.isEqual(temp1._doc, temp2._doc)) {
+      throw new Error("Data inconsistent between Server and Database");
+    }
+
+    res.status(200).send({ data: "Put Successful" });
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Put Failure : " + error });
   }
 });
 

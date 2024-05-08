@@ -1,21 +1,28 @@
-import { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, useParams } from "react-router-dom";
 
-function SalaryTemplateAdder() {
-  console.log("SalaryTemplateAdder Running");
-
+function SalaryTemplateEditor() {
+  console.log("SalaryTemplateEditor Running");
+  const { profile } = useParams();
+  const [basic, setBasic] = useState(0);
+  const [ctc, setCTC] = useState(0);
+  const [selectedSalaryComponents, setSelectedSalaryComponents] = useState([]);
   const [unselectedSalaryComponents, setUnselectedSalaryComponents] = useState(
     []
   );
-  const [selectedSalaryComponents, setSelectedSalaryComponents] = useState([]);
-  const [profile, setProfile] = useState("");
-  const [basic, setBasic] = useState(0);
-  const [ctc, setCTC] = useState(0);
+
+  const salaryTemplate = useQuery({
+    queryKey: ["salaryTemplate", profile],
+    queryFn: async () => {
+      return await getSalaryTemplate();
+    },
+  });
 
   const salaryComponentNames = useQuery({
     queryKey: ["salaryComponentNames"],
+    enabled: salaryTemplate?.data != null,
     queryFn: async () => {
       return await getSalaryComponentNames();
     },
@@ -35,24 +42,60 @@ function SalaryTemplateAdder() {
     },
   });
 
-  const salaryTemplate = useMutation({
+  const salaryTemplatePut = useMutation({
     mutationFn: async () => {
-      await postSalaryTemplate();
+      await putSalaryTemplate();
     },
   });
 
+  const getSalaryTemplate = async () => {
+    const response = await axios.get(
+      `http://127.0.0.1:3000/app/salaryTemplate/${profile}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log(response);
+
+    setBasic(response.data[0].basic);
+    setCTC(response.data[0].ctc);
+    setSelectedSalaryComponents(response.data[0].salaryComponents);
+
+    return response.data[0];
+  };
+
   const getSalaryComponentNames = async () => {
     const response = await axios.get(
-      "http://127.0.0.1:3000/app/salaryComponentNames"
+      "http://127.0.0.1:3000/app/salaryComponentNames",
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
 
-    console.log(
-      "Status : " + response.status + " - Status Text : " + response.statusText
-    );
-
+    console.log(response);
+    console.log("__");
     console.log(response.data);
 
-    setUnselectedSalaryComponents(response.data);
+    let tempSalaryComponentNames = [];
+    salaryTemplate?.data?.salaryComponents?.map((salaryComponent) => {
+      tempSalaryComponentNames.push(salaryComponent.name);
+    });
+    console.log(tempSalaryComponentNames);
+
+    let tempUnselectedSalaryComponent = [];
+    response.data.map((name) => {
+      if (!tempSalaryComponentNames?.includes(name))
+        tempUnselectedSalaryComponent.push(name);
+    });
+    console.log(tempUnselectedSalaryComponent);
+    console.log("__");
+
+    setUnselectedSalaryComponents(tempUnselectedSalaryComponent);
 
     return response.data;
   };
@@ -87,8 +130,6 @@ function SalaryTemplateAdder() {
     setUnselectedSalaryComponents(tempUnselectedSalaryComponents);
   };
 
-  // const moveFromUnselectedToSelected = (data) => {};
-
   const moveFromSelectedToUnselected = async (salaryComponent) => {
     console.log("Move From Selected To Unselected");
 
@@ -106,25 +147,6 @@ function SalaryTemplateAdder() {
 
     setSelectedSalaryComponents(tempSelectedSalaryComponents);
     setUnselectedSalaryComponents(tempUnselectedSalaryComponents);
-  };
-
-  const postSalaryTemplate = async () => {
-    const response = await axios.post(
-      "http://127.0.0.1:3000/app/salaryTemplate",
-      {
-        profile: profile,
-        basic: basic,
-        ctc: ctc,
-        salaryComponents: selectedSalaryComponents,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log(response);
   };
 
   const addCTC = async () => {
@@ -173,29 +195,29 @@ function SalaryTemplateAdder() {
     setCTC(tempCTC);
   };
 
-  if (salaryComponentNames.isLoading) {
-    return (
-      <div>
-        <p>Loading Salary Component Names...</p>
-      </div>
+  const putSalaryTemplate = async () => {
+    const response = await axios.put(
+      "http://127.0.0.1:3000/app/salaryTemplate",
+      {
+        profile: profile,
+        basic: basic,
+        ctc: ctc,
+        salaryComponents: selectedSalaryComponents,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
-  }
 
-  if (salaryComponentNames.isError) {
-    console.log(salaryComponentNames.error);
+    console.log(response);
+  };
 
+  if (salaryTemplatePut.isError) {
     return (
       <div>
-        <p>
-          {JSON.stringify(
-            "Error code = " +
-              salaryComponentNames.error.response.status +
-              " and message = " +
-              salaryComponentNames.error.message +
-              " and body = " +
-              salaryComponentNames.error.response.data.data
-          )}
-        </p>
+        <p>Error : {JSON.stringify(salaryTemplatePut.error)}</p>
         <button
           onClick={() => {
             window.location.reload();
@@ -207,82 +229,39 @@ function SalaryTemplateAdder() {
     );
   }
 
-  if (salaryTemplate.isLoading) {
+  if (salaryTemplatePut.isSuccess) {
     return (
       <div>
-        <p>Loading Salary Template Names...</p>
+        <p>Salary Template Edited Successfully</p>
+        <NavLink to="/salaryTemplates">Salary Template List</NavLink>
       </div>
     );
   }
 
-  if (salaryTemplate.isError) {
-    return (
-      <div>
-        <p>{JSON.stringify("Error code = " + salaryTemplate.error)}</p>
-        <button
-          onClick={() => {
-            window.location.reload();
-          }}
-        >
-          Reload
-        </button>
-      </div>
-    );
-  }
-
-  if (salaryTemplate.isSuccess) {
-    return (
-      <div>
-        <p>Salary Template Successful</p>
-        <button
-          onClick={() => {
-            window.location.reload();
-          }}
-        >
-          Add Another Salary Template
-        </button>
-        <br />
-        <br />
-        <div>
-          <NavLink to="/salaryTemplates">Salary Template List</NavLink>
-        </div>
-      </div>
-    );
-  }
-
-  // after salaryComponentNames successfully loaded
   return (
     <div>
       <div>
         <h2>Payroll App</h2>
-        <p>ADD SALARY TEMPLATE</p>
+        <p>SALARY TEMPLATE EDITOR</p>
       </div>
-      <div>
-        <label htmlFor="profile">Profile </label>
-        <input
-          id="profile"
-          type="text"
-          placeholder="profile"
-          value={profile}
-          onChange={(event) => {
-            setProfile(event.target.value);
-          }}
-        />{" "}
-        <label htmlFor="basic">Basic </label>
-        <input
-          id="basic"
-          type="number"
-          placeholder="basic"
-          value={basic}
-          onChange={async (event) => {
-            if (event.target.value < 0) return;
-            setBasic(event.target.value);
-            await calculateCTC(event.target.value);
-          }}
-        />{" "}
-        <label htmlFor="basic">CTC </label>
-        <input id="ctc" type="number" placeholder="ctc" value={ctc} disabled />
-      </div>
+      {salaryTemplate?.data && (
+        <div>
+          <label htmlFor="profile">Profile </label>
+          <input id="profile" defaultValue={profile} disabled />
+          <label htmlFor="basic"> Basics </label>
+          <input
+            id="basic"
+            value={basic}
+            onChange={async (event) => {
+              if (event.target.value < 0) return;
+              setBasic(event.target.value);
+              await calculateCTC(event.target.value);
+            }}
+          />
+          <label htmlFor="ctc"> CTC </label>
+          <input id="ctc" value={ctc} disabled />
+        </div>
+      )}
       <hr />
       <div>
         <label htmlFor="salaryComponentName">
@@ -305,7 +284,7 @@ function SalaryTemplateAdder() {
         <br />
         {salaryComponentSelect.isLoading && <p>Salary Component Loading...</p>}
         {salaryComponentSelect.isError && (
-          <p>Error : {JSON.stringify(salaryComponent.error.message)}</p>
+          <p>Error : {JSON.stringify(salaryComponentSelect.error.message)}</p>
         )}
       </div>
       <div>
@@ -341,12 +320,10 @@ function SalaryTemplateAdder() {
           </tbody>
         </table>
       </div>
-      <hr />
       <div>
         <button
           onClick={() => {
-            if (profile === "") alert("Profile must be filled");
-            salaryTemplate.mutate();
+            salaryTemplatePut.mutate();
           }}
         >
           Submit
@@ -356,4 +333,4 @@ function SalaryTemplateAdder() {
   );
 }
 
-export default SalaryTemplateAdder;
+export default SalaryTemplateEditor;

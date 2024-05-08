@@ -21,6 +21,8 @@ function Home() {
         <NavLink to="/salaryComponents">Salary Component List</NavLink>
         <br />
         <NavLink to="/salaryTemplates/add">Add Salary Template</NavLink>
+        <br />
+        <NavLink to="/salaryTemplates">Salary Template List</NavLink>
       </div>
     </div>
   );
