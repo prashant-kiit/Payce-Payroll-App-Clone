@@ -267,8 +267,8 @@ router.get("/employees", async (req, res) => {
       req.query.hasOwnProperty("maxCTC")
     ) {
       req.query.ctc = {
-        $gt: parseInt(req.query["minCTC"]),
-        $lt: parseInt(req.query["maxCTC"]),
+        $gte: parseInt(req.query["minCTC"]),
+        $lte: parseInt(req.query["maxCTC"]),
       };
       delete req.query["minCTC"];
       delete req.query["maxCTC"];
@@ -279,7 +279,7 @@ router.get("/employees", async (req, res) => {
       !req.query.hasOwnProperty("maxCTC")
     ) {
       req.query.ctc = {
-        $gt: parseInt(req.query["minCTC"]),
+        $gte: parseInt(req.query["minCTC"]),
       };
       delete req.query["minCTC"];
     }
@@ -665,6 +665,32 @@ router.get("/salaryTemplates", async (req, res) => {
   }
 });
 
+router.get("/salaryTemplateProfiles", async (req, res) => {
+  try {
+    const salaryTemplates = await SalaryTemplate.find();
+
+    // console.log(salaryTemplates);
+
+    if (salaryTemplates.length === 0) {
+      throw new Error("No Data");
+    }
+
+    let salaryTemplateProfiles = [];
+
+    salaryTemplates.map((salaryTemplate) => {
+      salaryTemplateProfiles.push(salaryTemplate.profile);
+    });
+
+    // console.log(salaryTemplateProfiles);
+
+    res.status(200).send(salaryTemplateProfiles);
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
+  }
+});
+
 router.delete("/salaryTemplate/:profile", async (req, res) => {
   try {
     const salaryTemplateReturned = await SalaryTemplate.findOneAndDelete({
@@ -706,10 +732,29 @@ router.get("/salaryTemplate/:profile", async (req, res) => {
   }
 });
 
+router.get("/salaryTemplateCTC/:profile", async (req, res) => {
+  try {
+    console.log(req.params.profile);
+    const salaryTemplate = await SalaryTemplate.find({
+      profile: req.params.profile,
+    });
+
+    console.log(salaryTemplate);
+
+    if (salaryTemplate.length === 0) {
+      throw new Error("Collection has No Data");
+    }
+
+    res.status(200).send({ ctc: salaryTemplate[0].ctc });
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
+  }
+});
+
 router.put("/salaryTemplate", async (req, res) => {
   try {
-    // throw new Error("Fake Data");
-
     const salaryTemplateNew = new SalaryTemplate({
       profile: req.body.profile,
       basic: req.body.basic,

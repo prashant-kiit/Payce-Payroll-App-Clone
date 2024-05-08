@@ -12,10 +12,6 @@ function Home() {
         <br />
         <NavLink to="/organization">Organization</NavLink>
         <br />
-        <NavLink to="/employees/add">Add Employee</NavLink>
-        <br />
-        <NavLink to="/employees">Employees List</NavLink>
-        <br />
         <NavLink to="/salaryComponents/add">Add Salary Component</NavLink>
         <br />
         <NavLink to="/salaryComponents">Salary Component List</NavLink>
@@ -23,6 +19,10 @@ function Home() {
         <NavLink to="/salaryTemplates/add">Add Salary Template</NavLink>
         <br />
         <NavLink to="/salaryTemplates">Salary Template List</NavLink>
+        <br />
+        <NavLink to="/employees/add">Add Employee</NavLink>
+        <br />
+        <NavLink to="/employees">Employees List</NavLink>
       </div>
     </div>
   );

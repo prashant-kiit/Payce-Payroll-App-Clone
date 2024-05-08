@@ -313,6 +313,7 @@ function EmployeeList() {
                     setEmail("");
                     setMinCTC("");
                     setMaxCTC("");
+                    window.location.reload();
                   }}
                 >
                   Clear
