@@ -258,6 +258,12 @@ function EmployeeAdder() {
 
   const setDesignationCTC = async (profile) => {
     try {
+      if (profile === " ") {
+        setDesignation(" ");
+        setCTC("");
+        return;
+      }
+
       const response = await fetch(
         `http://127.0.0.1:3000/app/salaryTemplateCTC/${profile}`,
         {

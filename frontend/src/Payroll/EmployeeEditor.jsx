@@ -70,18 +70,21 @@ function EmployeeEditor() {
 
   const getDesignations = useCallback(async () => {
     try {
-      const response = await fetch("http://127.0.0.1:3000/app/designations", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json; charset=UTF-8",
-        },
-      });
+      const response = await fetch(
+        "http://127.0.0.1:3000/app/salaryTemplateProfiles",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json; charset=UTF-8",
+          },
+        }
+      );
 
       console.log("response");
       console.log(response);
 
       let data = await response.json();
-      data.unshift({ _id: 0, id: 0, name: "" });
+      data.unshift(" ");
       console.log("data");
       console.log(data);
 
@@ -259,6 +262,43 @@ function EmployeeEditor() {
     }
   };
 
+  const setDesignationCTC = async (profile) => {
+    try {
+      if (profile === " ") {
+        setDesignation(" ");
+        setCTC("");
+        return;
+      }
+
+      const response = await fetch(
+        `http://127.0.0.1:3000/app/salaryTemplateCTC/${profile}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json; charset=UTF-8",
+          },
+        }
+      );
+
+      console.log("response");
+      console.log(response);
+
+      let data = await response.json();
+      console.log(data);
+
+      if (!response.ok) {
+        alert("Status : " + response.status + " - " + response.statusText);
+        throw new Error(response.status + " - " + response.statusText);
+      }
+
+      setDesignation(profile);
+      setCTC(Number(data.ctc));
+    } catch (error) {
+      console.log("Client-Error");
+      console.log(error);
+    }
+  };
+
   if (isError) {
     return (
       <div>
@@ -349,12 +389,12 @@ function EmployeeEditor() {
           value={designation}
           disabled={lock}
           onChange={(e) => {
-            setDesignation(e.target.value);
+            setDesignationCTC(e.target.value);
           }}
         >
           {designations.map((designation) => (
-            <option key={designation.id} value={designation.name}>
-              {designation.name}
+            <option key={designation} value={designation}>
+              {designation}
             </option>
           ))}
         </select>
@@ -465,22 +505,7 @@ function EmployeeEditor() {
         />
         <br />
         <label htmlFor="ctc">Cost To Company {"(in $ per year)"}*</label>{" "}
-        <input
-          type="number"
-          name="ctc"
-          key={"11"}
-          value={ctc}
-          disabled={lock}
-          onChange={(e) => {
-            if (/^\d+$/.test(e.target.value)) {
-              setCTC(Number(e.target.value));
-            } else if (e.target.value === "") {
-              setCTC(e.target.value);
-            } else {
-              alert("Only Postive Numbers are allowed");
-            }
-          }}
-        />
+        <input type="number" name="ctc" key={"11"} value={ctc} disabled />
         <br />
         <button
           type="submit"
