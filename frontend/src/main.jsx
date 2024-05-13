@@ -19,6 +19,9 @@ import SalaryComponentEditor from "./Payroll/SalaryComponentEditor.jsx";
 import SalaryTemplateAdder from "./Payroll/SalaryTemplateAdder.jsx";
 import SalaryTemplateList from "./Payroll/SalaryTemplateList.jsx";
 import SalaryTemplateEditor from "./Payroll/SalaryTemplateEditor.jsx";
+import PayHome from "./Payroll/PayHome.jsx";
+import PayDrive from "./Payroll/PayDrive.jsx";
+import PayHistory from "./Payroll/PayHistory.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -39,6 +42,11 @@ const router = createBrowserRouter(
         <Route path="" element={<SalaryTemplateList />} />
         <Route path=":profile" element={<SalaryTemplateEditor />} />
         <Route path="add" element={<SalaryTemplateAdder />} />
+      </Route>
+      <Route path="payHome/">
+        <Route path="" element={<PayHome />} />
+        <Route path="drive" element={<PayDrive />} />
+        <Route path="history" element={<PayHistory />} />
       </Route>
       <Route path="*" element={<div>Not Found</div>} />
     </Route>

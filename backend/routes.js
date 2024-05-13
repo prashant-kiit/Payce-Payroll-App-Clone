@@ -16,6 +16,7 @@ import Department from "./models/department.js";
 import Qualification from "./models/education.js";
 import SalaryComponent from "./models/salaryComponent.js";
 import SalaryTemplate from "./models/salaryTemplate.js";
+import SelectedEmployee from "./models/selectedEmployees.js";
 
 const router = Router();
 // dotenv.config();
@@ -238,6 +239,17 @@ router.post("/employee", async (req, res) => {
       throw new Error("Data inconsistent between Server and Database");
     }
 
+    const selectedEmployee = new SelectedEmployee({
+      empId: req.body.empId,
+      ctc: req.body.ctc,
+    });
+
+    console.log(selectedEmployee);
+
+    const selectedEmployeeReturned = await selectedEmployee.save();
+
+    console.log(selectedEmployeeReturned);
+
     res.status(200).send({ data: "Post Successful" });
   } catch (error) {
     console.log("Server-Error");
@@ -254,7 +266,7 @@ router.post("/employee", async (req, res) => {
 
 router.get("/employees", async (req, res) => {
   try {
-    console.log("Query Parameters:", req.query);
+    // console.log("Query Parameters:", req.query);
 
     Object.entries(req.query).map(([key, value]) => {
       if (value === "") {
@@ -294,11 +306,11 @@ router.get("/employees", async (req, res) => {
       delete req.query["maxCTC"];
     }
 
-    console.log("Modified Query Parameters:", req.query);
+    // console.log("Modified Query Parameters:", req.query);
 
     const employees = await Employee.find(req.query);
 
-    console.log(employees);
+    // console.log(employees);
 
     if (employees.length === 0) {
       throw new Error("No Data");
@@ -405,27 +417,6 @@ router.delete("/employee/:empId", async (req, res) => {
     console.log("Server-Error");
     console.log(error);
     res.status(500).send({ data: "Delete Failure : " + error });
-  }
-});
-
-router.post("/send-sms", async (req, res) => {
-  try {
-    const dialCode = req.body.dialCode;
-    const phone = req.body.phone;
-    const otp = Math.floor(100000 + Math.random() * 900000);
-    const response = await client.messages.create({
-      from: "+13344328364",
-      to: `${dialCode}${phone}`, // custom recipent phone no
-      body: `This login verification message. Your OTP is ${otp}.`, // custom organization name
-    });
-
-    // console.log(response);
-
-    res.status(200).send({ data: "Post Successful" });
-  } catch (error) {
-    console.log("Server-Error");
-    console.log(error);
-    res.status(500).send({ data: "Post Failure : " + error });
   }
 });
 
@@ -794,6 +785,69 @@ router.put("/salaryTemplate", async (req, res) => {
   }
 });
 
+router.post("/selectedEmployee", async (req, res) => {
+  try {
+    const selectedEmployee = new SelectedEmployee({
+      empId: req.body.empId,
+      ctc: req.body.ctc,
+    });
+
+    console.log(selectedEmployee);
+
+    const selectedEmployeeReturned = await selectedEmployee.save();
+
+    console.log(selectedEmployeeReturned);
+
+    let temp1 = {};
+    Object.assign(temp1, selectedEmployee);
+    console.log(selectedEmployee);
+    console.log(temp1);
+    delete temp1._doc._id;
+    delete temp1._doc.__v;
+
+    let temp2 = {};
+    Object.assign(temp2, selectedEmployeeReturned);
+    console.log(selectedEmployeeReturned);
+    console.log(temp2);
+    delete temp2._doc._id;
+    delete temp2._doc.__v;
+
+    if (!_.isEqual(temp1._doc, temp2._doc)) {
+      throw new Error("Data inconsistent between Server and Database");
+    }
+
+    res.status(200).send({ data: "Post Successful" });
+  } catch (error) {
+    console.log("Server-Error");
+
+    if (error.code === 11000 || error.code === 11001) {
+      res.statusMessage = "Selected Employee is not Unique";
+    }
+    console.log(error);
+
+    res.status(500).send({ data: "Post Failure : " + error });
+  }
+});
+
+router.delete("/selectedEmployee/:empId", async (req, res) => {
+  try {
+    const selectedEmployeeReturned = await SelectedEmployee.findOneAndDelete({
+      empId: req.params.empId,
+    });
+
+    console.log(selectedEmployeeReturned);
+
+    if (selectedEmployeeReturned === null) {
+      throw new Error("Collection has No Data");
+    }
+
+    res.status(200).send({ data: "Delete Successful" });
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Delete Failure : " + error });
+  }
+});
 
 let attendancePerMonthCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
@@ -829,6 +883,27 @@ router.get("/attendance/:empId", async (req, res) => {
   } catch (error) {
     console.log("Server-Error");
     res.status(500).send({ data: "Get Failure : " + error });
+  }
+});
+
+router.post("/send-sms", async (req, res) => {
+  try {
+    const dialCode = req.body.dialCode;
+    const phone = req.body.phone;
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const response = await client.messages.create({
+      from: "+13344328364",
+      to: `${dialCode}${phone}`, // custom recipent phone no
+      body: `This login verification message. Your OTP is ${otp}.`, // custom organization name
+    });
+
+    // console.log(response);
+
+    res.status(200).send({ data: "Post Successful" });
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Post Failure : " + error });
   }
 });
 

@@ -341,7 +341,7 @@ function EmployeeList() {
                     key={`delete${employee.empId}`}
                     onClick={async () => {
                       await deleteEmployee(employee.empId);
-                      // window.location.reload();
+                      window.location.reload();
                     }}
                   >
                     Delete
