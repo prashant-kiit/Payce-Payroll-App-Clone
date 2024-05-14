@@ -18,7 +18,7 @@ function EmployeePayAction({
       await postEmployee();
     },
     onSuccess: (variables) => {
-      console.log(variables.ctc);
+      // console.log(variables.ctc);
       console.log(!checked);
       setChecked(!checked);
       setTotalEmployee(totalEmployee + 1);
@@ -30,7 +30,7 @@ function EmployeePayAction({
       await deleteEmployee();
     },
     onSuccess: (variables) => {
-      console.log(variables.ctc);
+      // console.log(variables.ctc);
       console.log(!checked);
       setChecked(!checked);
       setTotalEmployee(totalEmployee - 1);

@@ -11,19 +11,22 @@ function PayDrive() {
   const [totalEmployee, setTotalEmployee] = useState(0);
   const [payDay, setPayDay] = useState();
 
-  const employees = useQuery({
-    queryKey: ["employess"],
+  const selectedEmployees = useQuery({
+    queryKey: ["selectedEmployees"],
     queryFn: async () => {
-      return await getEmployees();
+      return await getSelectedEmployees();
     },
   });
 
-  const getEmployees = async () => {
-    const response = await axios.get("http://127.0.0.1:3000/app/employees", {
-      headers: {
-        "Content-Type": "application/json; charset=UTF-8",
-      },
-    });
+  const getSelectedEmployees = async () => {
+    const response = await axios.get(
+      "http://127.0.0.1:3000/app/selectedEmployees",
+      {
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+        },
+      }
+    );
     console.log(response);
     console.log(response.data.length);
 
@@ -83,16 +86,16 @@ function PayDrive() {
             </tr>
           </thead>
           <tbody>
-            {employees.data &&
-              employees.data.map((employee) => (
-                <tr key={employee.empId}>
-                  <td>{employee.empId}</td>
-                  <td>{employee.name}</td>
-                  <td>{employee.designation}</td>
-                  <td>{employee.ctc}</td>
+            {selectedEmployees.data &&
+              selectedEmployees.data.map((selectedEmployee) => (
+                <tr key={selectedEmployee.empId}>
+                  <td>{selectedEmployee.empId}</td>
+                  <td>{selectedEmployee.name}</td>
+                  <td>{selectedEmployee.designation}</td>
+                  <td>{selectedEmployee.ctc}</td>
                   <td>
                     <EmployeePayAction
-                      employee={employee}
+                      employee={selectedEmployee}
                       totalEmployee={totalEmployee}
                       setTotalEmployee={(totalEmployee) => {
                         setTotalEmployee(totalEmployee);

@@ -6,6 +6,8 @@ const SelectedEmployeeSchema = new Schema({
     type: String,
     unique: true,
   },
+  name: String,
+  designation: String,
   ctc: Number,
 });
 

@@ -241,14 +241,14 @@ router.post("/employee", async (req, res) => {
 
     const selectedEmployee = new SelectedEmployee({
       empId: req.body.empId,
+      name: req.body.name,
+      designation: req.body.designation,
       ctc: req.body.ctc,
     });
 
-    console.log(selectedEmployee);
+    // console.log(selectedEmployee);
 
-    const selectedEmployeeReturned = await selectedEmployee.save();
-
-    console.log(selectedEmployeeReturned);
+    await selectedEmployee.save();
 
     res.status(200).send({ data: "Post Successful" });
   } catch (error) {
@@ -392,6 +392,16 @@ router.put("/employee/:empId", async (req, res) => {
       throw new Error("Data inconsistent between Server and Database");
     }
 
+    await SelectedEmployee.findOneAndUpdate(
+      { empId: req.body.empId },
+      {
+        name: req.body.name,
+        designation: req.body.designation,
+        ctc: req.body.ctc,
+      },
+      { new: true }
+    );
+
     res.status(200).send({ data: "Put Successful" });
   } catch (error) {
     console.log("Server-Error");
@@ -411,6 +421,10 @@ router.delete("/employee/:empId", async (req, res) => {
     if (employeeReturned === null) {
       throw new Error("Collection has No Data or Duplicate Data");
     }
+
+    await SelectedEmployee.findOneAndDelete({
+      empId: req.params.empId,
+    });
 
     res.status(200).send({ data: "Delete Successful" });
   } catch (error) {
@@ -709,7 +723,7 @@ router.get("/salaryTemplate/:profile", async (req, res) => {
       profile: req.params.profile,
     });
 
-    console.log(salaryTemplate);
+    // console.log(salaryTemplate);
 
     if (salaryTemplate.length === 0) {
       throw new Error("Collection has No Data");
@@ -730,7 +744,7 @@ router.get("/salaryTemplateCTC/:profile", async (req, res) => {
       profile: req.params.profile,
     });
 
-    console.log(salaryTemplate);
+    // console.log(salaryTemplate);
 
     if (salaryTemplate.length === 0) {
       throw new Error("Collection has No Data");
@@ -785,6 +799,24 @@ router.put("/salaryTemplate", async (req, res) => {
   }
 });
 
+router.get("/selectedEmployees", async (req, res) => {
+  try {
+    const selectedEmployees = await SelectedEmployee.find();
+
+    // console.log(selectedEmployees);
+
+    if (selectedEmployees.length === 0) {
+      throw new Error("No Data");
+    }
+
+    res.status(200).send(selectedEmployees);
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
+  }
+});
+
 router.post("/selectedEmployee", async (req, res) => {
   try {
     const selectedEmployee = new SelectedEmployee({
@@ -792,11 +824,11 @@ router.post("/selectedEmployee", async (req, res) => {
       ctc: req.body.ctc,
     });
 
-    console.log(selectedEmployee);
+    // console.log(selectedEmployee);
 
     const selectedEmployeeReturned = await selectedEmployee.save();
 
-    console.log(selectedEmployeeReturned);
+    // console.log(selectedEmployeeReturned);
 
     let temp1 = {};
     Object.assign(temp1, selectedEmployee);
@@ -835,7 +867,7 @@ router.delete("/selectedEmployee/:empId", async (req, res) => {
       empId: req.params.empId,
     });
 
-    console.log(selectedEmployeeReturned);
+    // console.log(selectedEmployeeReturned);
 
     if (selectedEmployeeReturned === null) {
       throw new Error("Collection has No Data");
