@@ -9,6 +9,7 @@ const SelectedEmployeeSchema = new Schema({
   name: String,
   designation: String,
   ctc: Number,
+  selected: Boolean,
 });
 
 const SelectedEmployee = model("SelectedEmployees", SelectedEmployeeSchema);

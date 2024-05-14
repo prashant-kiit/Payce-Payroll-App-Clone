@@ -17,6 +17,7 @@ import Qualification from "./models/education.js";
 import SalaryComponent from "./models/salaryComponent.js";
 import SalaryTemplate from "./models/salaryTemplate.js";
 import SelectedEmployee from "./models/selectedEmployees.js";
+import PayDrive from "./models/payDrive.js";
 
 const router = Router();
 // dotenv.config();
@@ -223,15 +224,15 @@ router.post("/employee", async (req, res) => {
 
     let temp1 = {};
     Object.assign(temp1, employee);
-    console.log(employee);
-    console.log(temp1);
+    // console.log(employee);
+    // console.log(temp1);
     delete temp1._doc._id;
     delete temp1._doc.__v;
 
     let temp2 = {};
     Object.assign(temp2, employeeReturned);
-    console.log(employeeReturned);
-    console.log(temp2);
+    // console.log(employeeReturned);
+    // console.log(temp2);
     delete temp2._doc._id;
     delete temp2._doc.__v;
 
@@ -244,6 +245,7 @@ router.post("/employee", async (req, res) => {
       name: req.body.name,
       designation: req.body.designation,
       ctc: req.body.ctc,
+      selected: true,
     });
 
     // console.log(selectedEmployee);
@@ -331,7 +333,7 @@ router.get("/employee/:empId", async (req, res) => {
       empId: req.params.empId,
     });
 
-    console.log(employee);
+    // console.log(employee);
 
     if (employee === null || employee.length === 0) {
       throw new Error("Collection has No Data or Duplicate Data");
@@ -817,67 +819,95 @@ router.get("/selectedEmployees", async (req, res) => {
   }
 });
 
-router.post("/selectedEmployee", async (req, res) => {
+// router.put("/selectedEmployee", async (req, res) => {
+//   try {
+//     const selectedEmployeeNew = new SelectedEmployee({
+//       empId: req.body.empId,
+//       name: req.body.name,
+//       designation: req.body.designation,
+//       ctc: req.body.ctc,
+//       selected: req.body.selected,
+//     });
+
+//     const selectedEmployeeReturned = await SelectedEmployee.findOneAndUpdate(
+//       { empId: req.body.empId },
+//       {
+//         name: req.body.name,
+//         designation: req.body.designation,
+//         ctc: req.body.ctc,
+//         selected: req.body.selected,
+//       },
+//       { new: true }
+//     );
+
+//     let temp1 = {};
+//     Object.assign(temp1, selectedEmployeeNew);
+//     delete temp1._doc._id;
+//     delete temp1._doc.__v;
+
+//     let temp2 = {};
+//     Object.assign(temp2, selectedEmployeeReturned);
+//     delete temp2._doc._id;
+//     delete temp2._doc.__v;
+
+//     if (!_.isEqual(temp1._doc, temp2._doc)) {
+//       throw new Error("Data inconsistent between Server and Database");
+//     }
+
+//     res.status(200).send({ data: "Put Successful" });
+//   } catch (error) {
+//     console.log("Server-Error");
+//     console.log(error);
+//     res.status(500).send({ data: "Put Failure : " + error });
+//   }
+// });
+
+router.get("/payDrive", async (req, res) => {
   try {
-    const selectedEmployee = new SelectedEmployee({
-      empId: req.body.empId,
-      ctc: req.body.ctc,
+    const payDrive = await PayDrive.find();
+
+    // console.log(selectedEmployees);
+
+    if (payDrive.length === 0) {
+      throw new Error("No Data");
+    }
+
+    res.status(200).send(payDrive);
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
+  }
+});
+
+router.post("/payDrive", async (req, res) => {
+  try {
+    const payDrivesDeleted = await PayDrive.deleteMany({});
+
+    console.log(payDrivesDeleted.deletedCount);
+
+    const payDrive = new PayDrive({
+      totalPayment: req.body.totalPayment,
+      totalEmployee: req.body.totalEmployee,
+      payDay: req.body.payDay,
+      employees: req.body.employees,
     });
 
-    // console.log(selectedEmployee);
+    console.log(payDrive);
 
-    const selectedEmployeeReturned = await selectedEmployee.save();
+    const payDriveReturned = await payDrive.save();
 
-    // console.log(selectedEmployeeReturned);
+    console.log(payDriveReturned);
 
-    let temp1 = {};
-    Object.assign(temp1, selectedEmployee);
-    console.log(selectedEmployee);
-    console.log(temp1);
-    delete temp1._doc._id;
-    delete temp1._doc.__v;
-
-    let temp2 = {};
-    Object.assign(temp2, selectedEmployeeReturned);
-    console.log(selectedEmployeeReturned);
-    console.log(temp2);
-    delete temp2._doc._id;
-    delete temp2._doc.__v;
-
-    if (!_.isEqual(temp1._doc, temp2._doc)) {
-      throw new Error("Data inconsistent between Server and Database");
+    if (payDrive.length === 0) {
+      throw new Error("No Data");
     }
 
     res.status(200).send({ data: "Post Successful" });
   } catch (error) {
     console.log("Server-Error");
-
-    if (error.code === 11000 || error.code === 11001) {
-      res.statusMessage = "Selected Employee is not Unique";
-    }
     console.log(error);
-
     res.status(500).send({ data: "Post Failure : " + error });
-  }
-});
-
-router.delete("/selectedEmployee/:empId", async (req, res) => {
-  try {
-    const selectedEmployeeReturned = await SelectedEmployee.findOneAndDelete({
-      empId: req.params.empId,
-    });
-
-    // console.log(selectedEmployeeReturned);
-
-    if (selectedEmployeeReturned === null) {
-      throw new Error("Collection has No Data");
-    }
-
-    res.status(200).send({ data: "Delete Successful" });
-  } catch (error) {
-    console.log("Server-Error");
-    console.log(error);
-    res.status(500).send({ data: "Delete Failure : " + error });
   }
 });
 
