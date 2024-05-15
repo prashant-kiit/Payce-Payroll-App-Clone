@@ -248,7 +248,7 @@ function SalaryTemplateEditor() {
         <div>
           <label htmlFor="profile">Profile </label>
           <input id="profile" defaultValue={profile} disabled />
-          <label htmlFor="basic"> Basics </label>
+          <label htmlFor="basic"> Basics {" ($ per month) "}</label>
           <input
             id="basic"
             value={basic}

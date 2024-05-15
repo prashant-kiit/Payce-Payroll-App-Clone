@@ -87,8 +87,6 @@ function SalaryTemplateAdder() {
     setUnselectedSalaryComponents(tempUnselectedSalaryComponents);
   };
 
-  // const moveFromUnselectedToSelected = (data) => {};
-
   const moveFromSelectedToUnselected = async (salaryComponent) => {
     console.log("Move From Selected To Unselected");
 
@@ -268,7 +266,7 @@ function SalaryTemplateAdder() {
             setProfile(event.target.value);
           }}
         />{" "}
-        <label htmlFor="basic">Basic </label>
+        <label htmlFor="basic">Basic {" ($ per month) "}</label>
         <input
           id="basic"
           type="number"

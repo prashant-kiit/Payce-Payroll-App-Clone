@@ -1,25 +1,34 @@
 import { useEffect, useState, useCallback } from "react";
 import { NavLink } from "react-router-dom";
+import PaySlipEditor from "./PaySlipEditor";
+import axios from "axios";
 
 function EmployeeAdder() {
   const [empId, setEmpId] = useState("");
   const [name, setName] = useState("");
   const [education, setEducation] = useState("");
   const [designation, setDesignation] = useState("");
+  const [paySlip, setPaySlip] = useState({});
   const [doj, setDOJ] = useState("");
   const [location, setLocation] = useState("");
   const [department, setDepartment] = useState("");
   const [dialCode, setDialCode] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [ctc, setCTC] = useState("");
+  // const [ctc, setCTC] = useState(0);
   const [educations, setEducations] = useState([]);
   const [locations, setLocations] = useState([]);
   const [dialCodes, setDialCodes] = useState([]);
   const [designations, setDesignations] = useState([]);
   const [departments, setDepartments] = useState([]);
+
+  const [unselectedSalaryComponents, setUnselectedSalaryComponents] = useState(
+    []
+  );
+
   const [lock, setLock] = useState(false);
   const [status, setStatus] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     async function getDropDownListContent() {
@@ -135,7 +144,7 @@ function EmployeeAdder() {
       console.log(response);
 
       let data = await response.json();
-      data.unshift(" ");
+      data.unshift("");
       console.log("data");
       console.log(data);
 
@@ -188,13 +197,14 @@ function EmployeeAdder() {
           name: name,
           education: education,
           designation: designation,
+          paySlip: paySlip,
           doj: doj,
           location: location,
           department: department,
           dialCode: dialCode,
           phone: phone,
           email: email,
-          ctc: ctc,
+          ctc: paySlip.ctc,
         })
       );
       const response = await fetch("http://127.0.0.1:3000/app/employee", {
@@ -207,13 +217,14 @@ function EmployeeAdder() {
           name: name,
           education: education,
           designation: designation,
+          paySlip: paySlip,
           doj: doj,
           location: location,
           department: department,
           dialCode: dialCode,
           phone: phone,
           email: email,
-          ctc: ctc,
+          ctc: paySlip.ctc,
         }),
       });
 
@@ -247,25 +258,27 @@ function EmployeeAdder() {
     name,
     education,
     designation,
+    paySlip,
     doj,
     location,
     department,
     dialCode,
     phone,
     email,
-    ctc,
   ]);
 
   const setDesignationCTC = async (profile) => {
     try {
-      if (profile === " ") {
-        setDesignation(" ");
-        setCTC("");
-        return;
+      if (profile === "") {
+        setDesignation("");
+        setPaySlip({});
+        setIsOpen(false);
+        // setCTC(0)
+        return {};
       }
 
       const response = await fetch(
-        `http://127.0.0.1:3000/app/salaryTemplateCTC/${profile}`,
+        `http://127.0.0.1:3000/app/salaryTemplate/${profile}`,
         {
           method: "GET",
           headers: {
@@ -277,8 +290,8 @@ function EmployeeAdder() {
       console.log("response");
       console.log(response);
 
-      let data = await response.json();
-      console.log(data);
+      let paySlip = await response.json();
+      console.log(paySlip[0]);
 
       if (!response.ok) {
         alert("Status : " + response.status + " - " + response.statusText);
@@ -286,11 +299,48 @@ function EmployeeAdder() {
       }
 
       setDesignation(profile);
-      setCTC(Number(data.ctc));
+      setPaySlip(paySlip[0]);
+      // setCTC(Number(paySlip[0].ctc));
+
+      return paySlip[0];
     } catch (error) {
       console.log("Client-Error");
       console.log(error);
     }
+  };
+
+  const getSalaryComponentNames = async (currentPaySlip) => {
+    console.log("--------------------CHECK--------------------");
+
+    const response = await axios.get(
+      "http://127.0.0.1:3000/app/salaryComponentNames",
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log(response);
+
+    console.log("__");
+    console.log(response.data);
+
+    let tempSalaryComponentNames = [];
+    currentPaySlip.salaryComponents?.map((salaryComponent) => {
+      tempSalaryComponentNames.push(salaryComponent.name);
+    });
+    console.log(tempSalaryComponentNames);
+
+    let tempUnselectedSalaryComponent = [];
+    response.data.map((name) => {
+      if (!tempSalaryComponentNames?.includes(name))
+        tempUnselectedSalaryComponent.push(name);
+    });
+    console.log(tempUnselectedSalaryComponent);
+    console.log("__");
+
+    setUnselectedSalaryComponents(tempUnselectedSalaryComponent);
   };
 
   if (status) {
@@ -376,8 +426,9 @@ function EmployeeAdder() {
           key={"4"}
           value={designation}
           disabled={lock}
-          onChange={(e) => {
-            setDesignationCTC(e.target.value);
+          onChange={async (e) => {
+            let currentPaySlip = await setDesignationCTC(e.target.value);
+            await getSalaryComponentNames(currentPaySlip);
           }}
         >
           {designations.map((designation) => (
@@ -386,6 +437,32 @@ function EmployeeAdder() {
             </option>
           ))}
         </select>
+        {designation && (
+          <button
+            disabled={lock}
+            onClick={() => {
+              setIsOpen(true);
+            }}
+          >
+            {" "}
+            Edit PaySlip
+          </button>
+        )}
+        <PaySlipEditor
+          profile={designation}
+          unselectedSalaryComponents={unselectedSalaryComponents}
+          setUnselectedSalaryComponents={(unselectedSalaryComponents) => {
+            setUnselectedSalaryComponents(unselectedSalaryComponents);
+          }}
+          isOpen={isOpen}
+          setIsOpen={(isOpen) => {
+            setIsOpen(isOpen);
+          }}
+          paySlip={paySlip}
+          setPaySlip={(paySlip) => {
+            setPaySlip(paySlip);
+          }}
+        />
         <br />
         <label htmlFor="doj">Date Of Joining*</label>{" "}
         <input
@@ -492,8 +569,14 @@ function EmployeeAdder() {
           }}
         />
         <br />
-        <label htmlFor="ctc">Cost To Company {"(in $ per year)"}*</label>{" "}
-        <input type="number" name="ctc" key={"11"} value={ctc} disabled />
+        <label htmlFor="ctc">Cost To Company {"(in $ per month)"}*</label>{" "}
+        <input
+          type="number"
+          name="ctc"
+          key={"11"}
+          value={paySlip.ctc ?? 0}
+          disabled
+        />
         <br />
         <button
           type="submit"
@@ -509,15 +592,14 @@ function EmployeeAdder() {
               department === "" ||
               dialCode === "" ||
               phone === "" ||
-              email === "" ||
-              ctc === ""
+              email === ""
             ) {
               alert("Please fill the mandatory fields");
             } else {
               if (lock) {
                 await postEmployee();
               } else {
-                alert("Save before submitting");
+                alert("Save the form and the PaySlip before submitting");
               }
             }
           }}
@@ -528,7 +610,8 @@ function EmployeeAdder() {
           type="submit"
           name="edit/save-button"
           onClick={() => {
-            setLock(!lock);
+            if (!isOpen) setLock(!lock);
+            else alert("Save the PaySlip before saving the form");
           }}
         >
           {lock ? "Edit" : "Save"}

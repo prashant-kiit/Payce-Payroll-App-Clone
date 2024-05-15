@@ -209,6 +209,7 @@ router.post("/employee", async (req, res) => {
       name: req.body.name,
       education: req.body.education,
       designation: req.body.designation,
+      paySlip: req.body.paySlip,
       doj: req.body.doj,
       location: req.body.location,
       department: req.body.department,
@@ -504,7 +505,7 @@ router.get("/salaryComponentNames", async (req, res) => {
   try {
     const salaryComponents = await SalaryComponent.find();
 
-    // console.log(salaryComponents);
+    console.log(salaryComponents);
 
     if (salaryComponents.length === 0) {
       throw new Error("No Data");
@@ -516,7 +517,7 @@ router.get("/salaryComponentNames", async (req, res) => {
       salaryComponentNames.push(salaryComponent.name);
     });
 
-    // console.log(salaryComponentNames);
+    console.log(salaryComponentNames);
 
     res.status(200).send(salaryComponentNames);
   } catch (error) {
@@ -720,7 +721,6 @@ router.delete("/salaryTemplate/:profile", async (req, res) => {
 
 router.get("/salaryTemplate/:profile", async (req, res) => {
   try {
-    console.log(req.params.profile);
     const salaryTemplate = await SalaryTemplate.find({
       profile: req.params.profile,
     });
@@ -739,26 +739,25 @@ router.get("/salaryTemplate/:profile", async (req, res) => {
   }
 });
 
-router.get("/salaryTemplateCTC/:profile", async (req, res) => {
-  try {
-    console.log(req.params.profile);
-    const salaryTemplate = await SalaryTemplate.find({
-      profile: req.params.profile,
-    });
+// router.get("/salaryTemplateCTC/:profile", async (req, res) => {
+//   try {
+//     const salaryTemplate = await SalaryTemplate.find({
+//       profile: req.params.profile,
+//     });
 
-    // console.log(salaryTemplate);
+//     console.log(salaryTemplate);
 
-    if (salaryTemplate.length === 0) {
-      throw new Error("Collection has No Data");
-    }
+//     if (salaryTemplate.length === 0) {
+//       throw new Error("Collection has No Data");
+//     }
 
-    res.status(200).send({ ctc: salaryTemplate[0].ctc });
-  } catch (error) {
-    console.log("Server-Error");
-    console.log(error);
-    res.status(500).send({ data: "Get Failure : " + error });
-  }
-});
+//     res.status(200).send({ ctc: salaryTemplate[0].ctc });
+//   } catch (error) {
+//     console.log("Server-Error");
+//     console.log(error);
+//     res.status(500).send({ data: "Get Failure : " + error });
+//   }
+// });
 
 router.put("/salaryTemplate", async (req, res) => {
   try {
@@ -801,23 +800,23 @@ router.put("/salaryTemplate", async (req, res) => {
   }
 });
 
-router.get("/selectedEmployees", async (req, res) => {
-  try {
-    const selectedEmployees = await SelectedEmployee.find();
+// router.get("/selectedEmployees", async (req, res) => {
+//   try {
+//     const selectedEmployees = await SelectedEmployee.find();
 
-    // console.log(selectedEmployees);
+//     // console.log(selectedEmployees);
 
-    if (selectedEmployees.length === 0) {
-      throw new Error("No Data");
-    }
+//     if (selectedEmployees.length === 0) {
+//       throw new Error("No Data");
+//     }
 
-    res.status(200).send(selectedEmployees);
-  } catch (error) {
-    console.log("Server-Error");
-    console.log(error);
-    res.status(500).send({ data: "Get Failure : " + error });
-  }
-});
+//     res.status(200).send(selectedEmployees);
+//   } catch (error) {
+//     console.log("Server-Error");
+//     console.log(error);
+//     res.status(500).send({ data: "Get Failure : " + error });
+//   }
+// });
 
 // router.put("/selectedEmployee", async (req, res) => {
 //   try {
@@ -884,7 +883,7 @@ router.post("/payDrive", async (req, res) => {
   try {
     const payDrivesDeleted = await PayDrive.deleteMany({});
 
-    console.log(payDrivesDeleted.deletedCount);
+    // console.log(payDrivesDeleted.deletedCount);
 
     const payDrive = new PayDrive({
       totalPayment: req.body.totalPayment,
@@ -893,11 +892,11 @@ router.post("/payDrive", async (req, res) => {
       employees: req.body.employees,
     });
 
-    console.log(payDrive);
+    // console.log(payDrive);
 
     const payDriveReturned = await payDrive.save();
 
-    console.log(payDriveReturned);
+    // console.log(payDriveReturned);
 
     if (payDrive.length === 0) {
       throw new Error("No Data");

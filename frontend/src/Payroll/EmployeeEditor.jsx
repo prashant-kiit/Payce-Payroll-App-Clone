@@ -504,7 +504,7 @@ function EmployeeEditor() {
           }}
         />
         <br />
-        <label htmlFor="ctc">Cost To Company {"(in $ per year)"}*</label>{" "}
+        <label htmlFor="ctc">Cost To Company {"(in $ per month)"}*</label>{" "}
         <input type="number" name="ctc" key={"11"} value={ctc} disabled />
         <br />
         <button

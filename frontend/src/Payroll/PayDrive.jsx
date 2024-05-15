@@ -122,7 +122,7 @@ function PayDrive() {
                   <td>{employee.empId}</td>
                   <td>{employee.name}</td>
                   <td>{employee.designation}</td>
-                  <td>{employee.ctc}</td>
+                  <td>$ {employee.ctc} per month</td>
                   <td>
                     <EmployeePayAction
                       index={index++}
