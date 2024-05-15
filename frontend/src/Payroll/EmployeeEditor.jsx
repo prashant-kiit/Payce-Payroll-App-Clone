@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { NavLink } from "react-router-dom";
+import PaySlipEditor from "./PaySlipEditor";
 import axios from "axios";
 
 function EmployeeEditor() {
@@ -10,23 +11,33 @@ function EmployeeEditor() {
   const { empId } = useParams();
   const [name, setName] = useState("");
   const [education, setEducation] = useState("");
+  const [originalDesignation, setOriginalDesignation] = useState("");
   const [designation, setDesignation] = useState("");
+  const [originalPaySlip, setOriginalPaySlip] = useState({});
+  const [paySlip, setPaySlip] = useState({});
   const [doj, setDOJ] = useState("");
   const [location, setLocation] = useState("");
   const [department, setDepartment] = useState("");
   const [dialCode, setDialCode] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [ctc, setCTC] = useState("");
+  // const [ctc, setCTC] = useState("");
+
   const [educations, setEducations] = useState([]);
   const [locations, setLocations] = useState([]);
   const [dialCodes, setDialCodes] = useState([]);
   const [designations, setDesignations] = useState([]);
   const [departments, setDepartments] = useState([]);
+
+  const [unselectedSalaryComponents, setUnselectedSalaryComponents] = useState(
+    []
+  );
+
   const [lock, setLock] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [status, setStatus] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     (async function getDropDownListContent() {
@@ -84,7 +95,7 @@ function EmployeeEditor() {
       console.log(response);
 
       let data = await response.json();
-      data.unshift(" ");
+      data.unshift("");
       console.log("data");
       console.log(data);
 
@@ -189,7 +200,6 @@ function EmployeeEditor() {
 
   const getEmployee = useCallback(async () => {
     try {
-      console.log("empId " + empId);
       const response = await axios.get(
         `http://127.0.0.1:3000/app/employee/${empId}`
       );
@@ -200,14 +210,16 @@ function EmployeeEditor() {
       // setEmpId(response.data[0].empId);
       setName(response.data[0].name);
       setEducation(response.data[0].education);
+      setOriginalDesignation(response.data[0].designation);
       setDesignation(response.data[0].designation);
+      setOriginalPaySlip(response.data[0].paySlip);
+      setPaySlip(response.data[0].paySlip);
       setDOJ(response.data[0].doj);
       setLocation(response.data[0].location);
       setDepartment(response.data[0].department);
       setDialCode(response.data[0].dialCode);
       setPhone(response.data[0].phone);
       setEmail(response.data[0].email);
-      setCTC(response.data[0].ctc);
 
       console.log(
         "Status : " +
@@ -234,13 +246,14 @@ function EmployeeEditor() {
           name: name,
           education: education,
           designation: designation,
+          paySlip: paySlip,
           doj: doj,
           location: location,
           department: department,
           dialCode: dialCode,
           phone: phone,
           email: email,
-          ctc: ctc,
+          ctc: paySlip.ctc,
         }
       );
 
@@ -264,14 +277,16 @@ function EmployeeEditor() {
 
   const setDesignationCTC = async (profile) => {
     try {
-      if (profile === " ") {
-        setDesignation(" ");
-        setCTC("");
-        return;
+      if (profile === "") {
+        setDesignation("");
+        setPaySlip({});
+        setIsOpen(false);
+        // setCTC(0)
+        return {};
       }
 
       const response = await fetch(
-        `http://127.0.0.1:3000/app/salaryTemplateCTC/${profile}`,
+        `http://127.0.0.1:3000/app/salaryTemplate/${profile}`,
         {
           method: "GET",
           headers: {
@@ -283,8 +298,8 @@ function EmployeeEditor() {
       console.log("response");
       console.log(response);
 
-      let data = await response.json();
-      console.log(data);
+      let paySlip = await response.json();
+      console.log(paySlip[0]);
 
       if (!response.ok) {
         alert("Status : " + response.status + " - " + response.statusText);
@@ -292,11 +307,46 @@ function EmployeeEditor() {
       }
 
       setDesignation(profile);
-      setCTC(Number(data.ctc));
+      setPaySlip(paySlip[0]);
+      // setCTC(Number(paySlip[0].ctc));
+
+      return paySlip[0];
     } catch (error) {
       console.log("Client-Error");
       console.log(error);
     }
+  };
+
+  const getSalaryComponentNames = async (currentPaySlip) => {
+    const response = await axios.get(
+      "http://127.0.0.1:3000/app/salaryComponentNames",
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log(response);
+
+    console.log("__");
+    console.log(response.data);
+
+    let tempSalaryComponentNames = [];
+    currentPaySlip.salaryComponents?.map((salaryComponent) => {
+      tempSalaryComponentNames.push(salaryComponent.name);
+    });
+    console.log(tempSalaryComponentNames);
+
+    let tempUnselectedSalaryComponent = [];
+    response.data.map((name) => {
+      if (!tempSalaryComponentNames?.includes(name))
+        tempUnselectedSalaryComponent.push(name);
+    });
+    console.log(tempUnselectedSalaryComponent);
+    console.log("__");
+
+    setUnselectedSalaryComponents(tempUnselectedSalaryComponent);
   };
 
   if (isError) {
@@ -337,7 +387,6 @@ function EmployeeEditor() {
         <h2>Payroll App</h2>
         <p>EDIT EMPLOYEE</p>
       </div>
-
       <div>
         <label name="empId">Employee Id*</label>{" "}
         <input
@@ -388,8 +437,15 @@ function EmployeeEditor() {
           key={"4"}
           value={designation}
           disabled={lock}
-          onChange={(e) => {
-            setDesignationCTC(e.target.value);
+          onChange={async (e) => {
+            if (e.target.value === originalDesignation) {
+              setDesignation(originalDesignation);
+              setPaySlip(originalPaySlip);
+              await getSalaryComponentNames(originalPaySlip);
+            } else {
+              let currentPaySlip = await setDesignationCTC(e.target.value);
+              await getSalaryComponentNames(currentPaySlip);
+            }
           }}
         >
           {designations.map((designation) => (
@@ -398,6 +454,32 @@ function EmployeeEditor() {
             </option>
           ))}
         </select>
+        {designation && (
+          <button
+            disabled={lock}
+            onClick={() => {
+              setIsOpen(true);
+            }}
+          >
+            {" "}
+            Edit PaySlip
+          </button>
+        )}
+        <PaySlipEditor
+          profile={designation}
+          unselectedSalaryComponents={unselectedSalaryComponents}
+          setUnselectedSalaryComponents={(unselectedSalaryComponents) => {
+            setUnselectedSalaryComponents(unselectedSalaryComponents);
+          }}
+          isOpen={isOpen}
+          setIsOpen={(isOpen) => {
+            setIsOpen(isOpen);
+          }}
+          paySlip={paySlip}
+          setPaySlip={(paySlip) => {
+            setPaySlip(paySlip);
+          }}
+        />
         <br />
         <label htmlFor="doj">Date Of Joining*</label>{" "}
         <input
@@ -505,7 +587,13 @@ function EmployeeEditor() {
         />
         <br />
         <label htmlFor="ctc">Cost To Company {"(in $ per month)"}*</label>{" "}
-        <input type="number" name="ctc" key={"11"} value={ctc} disabled />
+        <input
+          type="number"
+          name="ctc"
+          key={"11"}
+          value={paySlip.ctc}
+          disabled
+        />
         <br />
         <button
           type="submit"
@@ -521,15 +609,14 @@ function EmployeeEditor() {
               department === "" ||
               dialCode === "" ||
               phone === "" ||
-              email === "" ||
-              ctc === ""
+              email === ""
             ) {
               alert("Please fill the mandatory fields");
             } else {
               if (lock) {
                 await putEmployee();
               } else {
-                alert("Save before submitting");
+                alert("Save the form and the PaySlip before submitting");
               }
             }
           }}
@@ -540,7 +627,8 @@ function EmployeeEditor() {
           type="submit"
           name="edit/save-button"
           onClick={() => {
-            setLock(!lock);
+            if (!isOpen) setLock(!lock);
+            else alert("Save the PaySlip before saving the form");
           }}
         >
           {lock ? "Edit" : "Save"}

@@ -9,7 +9,7 @@ const EmployeeSchema = new Schema({
   name: String,
   education: String,
   designation: String,
-  paySlip: Array,
+  paySlip: Object,
   doj: String,
   location: String,
   department: String,
