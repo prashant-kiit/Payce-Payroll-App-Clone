@@ -23,6 +23,7 @@ const EmployeeSchema = new Schema({
     unique: true,
   },
   ctc: Number,
+  selected: Boolean,
 });
 
 const Employee = model("Employee", EmployeeSchema);

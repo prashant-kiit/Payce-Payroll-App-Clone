@@ -5,8 +5,6 @@ import readline from "readline";
 import _ from "lodash";
 import Organization from "./models/organization.js";
 import Employee from "./models/employee.js";
-import PayStructure from "./models/payStructure.js";
-import Components from "./data/components.js";
 import Attendance from "./models/attendance.js";
 import Industry from "./models/industry.js";
 import Location from "./models/location.js";
@@ -16,7 +14,6 @@ import Department from "./models/department.js";
 import Qualification from "./models/education.js";
 import SalaryComponent from "./models/salaryComponent.js";
 import SalaryTemplate from "./models/salaryTemplate.js";
-import SelectedEmployee from "./models/selectedEmployees.js";
 import PayDrive from "./models/payDrive.js";
 
 const router = Router();
@@ -217,6 +214,7 @@ router.post("/employee", async (req, res) => {
       phone: req.body.phone,
       email: req.body.email,
       ctc: req.body.ctc,
+      selected: req.body.selected,
     });
 
     // console.log(employee);
@@ -241,17 +239,25 @@ router.post("/employee", async (req, res) => {
       throw new Error("Data inconsistent between Server and Database");
     }
 
-    const selectedEmployee = new SelectedEmployee({
-      empId: req.body.empId,
-      name: req.body.name,
-      designation: req.body.designation,
-      ctc: req.body.ctc,
-      selected: true,
-    });
+    // Update PayDrive on Employee Addition
+    const payDriveResult = await PayDrive.findOneAndUpdate(
+      {},
+      {
+        $inc: {
+          totalPayment: req.body.ctc,
+          totalEmployee: 1,
+        },
+      },
+      { new: true }
+    );
+    console.log(
+      "Total payment and total employee updated successfully:",
+      payDriveResult
+    );
 
-    // console.log(selectedEmployee);
-
-    await selectedEmployee.save();
+    if (payDriveResult < 0) {
+      throw new Error("Pay Drive Not Updated");
+    }
 
     res.status(200).send({ data: "Post Successful" });
   } catch (error) {
@@ -329,7 +335,6 @@ router.get("/employees", async (req, res) => {
 
 router.get("/employee/:empId", async (req, res) => {
   try {
-    console.log(req.params.empId);
     const employee = await Employee.find({
       empId: req.params.empId,
     });
@@ -350,8 +355,12 @@ router.get("/employee/:empId", async (req, res) => {
 
 router.put("/employee/:empId", async (req, res) => {
   try {
+    const employeeOlder = await Employee.find({
+      empId: req.params.empId,
+    });
+
     const employeeNew = new Employee({
-      empId: req.body.empId,
+      empId: req.params.empId,
       name: req.body.name,
       education: req.body.education,
       designation: req.body.designation,
@@ -363,10 +372,11 @@ router.put("/employee/:empId", async (req, res) => {
       phone: req.body.phone,
       email: req.body.email,
       ctc: req.body.ctc,
+      selected: req.body.selected,
     });
 
     const employeeReturned = await Employee.findOneAndUpdate(
-      { empId: req.body.empId },
+      { empId: req.params.empId },
       {
         name: req.body.name,
         education: req.body.education,
@@ -379,6 +389,7 @@ router.put("/employee/:empId", async (req, res) => {
         phone: req.body.phone,
         email: req.body.email,
         ctc: req.body.ctc,
+        selected: req.body.selected,
       },
       { new: true }
     );
@@ -397,15 +408,49 @@ router.put("/employee/:empId", async (req, res) => {
       throw new Error("Data inconsistent between Server and Database");
     }
 
-    await SelectedEmployee.findOneAndUpdate(
-      { empId: req.body.empId },
+    // Update PayDrive on Employee Edition if Employee is Selected
+    if (employeeReturned.selected) {
+      const payDriveResult = await PayDrive.findOneAndUpdate(
+        {},
+        {
+          $inc: {
+            totalPayment: employeeReturned.ctc - employeeOlder[0].ctc,
+          },
+        },
+        { new: true }
+      );
+
+      console.log(
+        "Total payment and total employee updated successfully:",
+        payDriveResult
+      );
+
+      if (payDriveResult < 0) {
+        throw new Error("Pay Drive Not Updated");
+      }
+    }
+
+    res.status(200).send({ data: "Put Successful" });
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Put Failure : " + error });
+  }
+});
+
+router.put("/employee/selected/:empId", async (req, res) => {
+  try {
+    const employeeReturned = await Employee.findOneAndUpdate(
+      { empId: req.params.empId },
       {
-        name: req.body.name,
-        designation: req.body.designation,
+        paySlip: req.body.paySlip,
         ctc: req.body.ctc,
+        selected: req.body.selected,
       },
       { new: true }
     );
+
+    console.log(employeeReturned);
 
     res.status(200).send({ data: "Put Successful" });
   } catch (error) {
@@ -421,15 +466,35 @@ router.delete("/employee/:empId", async (req, res) => {
       empId: req.params.empId,
     });
 
+    // console.log("employeeReturned");
     // console.log(employeeReturned);
 
     if (employeeReturned === null) {
       throw new Error("Collection has No Data or Duplicate Data");
     }
 
-    await SelectedEmployee.findOneAndDelete({
-      empId: req.params.empId,
-    });
+    // Update PayDrive on Employee Deletion if Employee is Selected
+    if (employeeReturned.selected) {
+      const payDriveResult = await PayDrive.findOneAndUpdate(
+        {},
+        {
+          $inc: {
+            totalPayment: -employeeReturned.ctc,
+            totalEmployee: -1,
+          },
+        },
+        { new: true }
+      );
+
+      console.log(
+        "Total payment and total employee updated successfully:",
+        payDriveResult
+      );
+
+      if (payDriveResult < 0) {
+        throw new Error("Pay Drive Not Updated");
+      }
+    }
 
     res.status(200).send({ data: "Delete Successful" });
   } catch (error) {
@@ -507,7 +572,7 @@ router.get("/salaryComponentNames", async (req, res) => {
   try {
     const salaryComponents = await SalaryComponent.find();
 
-    console.log(salaryComponents);
+    // console.log(salaryComponents);
 
     if (salaryComponents.length === 0) {
       throw new Error("No Data");
@@ -519,7 +584,7 @@ router.get("/salaryComponentNames", async (req, res) => {
       salaryComponentNames.push(salaryComponent.name);
     });
 
-    console.log(salaryComponentNames);
+    // console.log(salaryComponentNames);
 
     res.status(200).send(salaryComponentNames);
   } catch (error) {
@@ -531,7 +596,6 @@ router.get("/salaryComponentNames", async (req, res) => {
 
 router.get("/salaryComponent/:name", async (req, res) => {
   try {
-    console.log(req.params.name);
     const salaryComponent = await SalaryComponent.find({
       name: req.params.name,
     });
@@ -741,26 +805,6 @@ router.get("/salaryTemplate/:profile", async (req, res) => {
   }
 });
 
-// router.get("/salaryTemplateCTC/:profile", async (req, res) => {
-//   try {
-//     const salaryTemplate = await SalaryTemplate.find({
-//       profile: req.params.profile,
-//     });
-
-//     console.log(salaryTemplate);
-
-//     if (salaryTemplate.length === 0) {
-//       throw new Error("Collection has No Data");
-//     }
-
-//     res.status(200).send({ ctc: salaryTemplate[0].ctc });
-//   } catch (error) {
-//     console.log("Server-Error");
-//     console.log(error);
-//     res.status(500).send({ data: "Get Failure : " + error });
-//   }
-// });
-
 router.put("/salaryTemplate", async (req, res) => {
   try {
     const salaryTemplateNew = new SalaryTemplate({
@@ -802,67 +846,6 @@ router.put("/salaryTemplate", async (req, res) => {
   }
 });
 
-// router.get("/selectedEmployees", async (req, res) => {
-//   try {
-//     const selectedEmployees = await SelectedEmployee.find();
-
-//     // console.log(selectedEmployees);
-
-//     if (selectedEmployees.length === 0) {
-//       throw new Error("No Data");
-//     }
-
-//     res.status(200).send(selectedEmployees);
-//   } catch (error) {
-//     console.log("Server-Error");
-//     console.log(error);
-//     res.status(500).send({ data: "Get Failure : " + error });
-//   }
-// });
-
-// router.put("/selectedEmployee", async (req, res) => {
-//   try {
-//     const selectedEmployeeNew = new SelectedEmployee({
-//       empId: req.body.empId,
-//       name: req.body.name,
-//       designation: req.body.designation,
-//       ctc: req.body.ctc,
-//       selected: req.body.selected,
-//     });
-
-//     const selectedEmployeeReturned = await SelectedEmployee.findOneAndUpdate(
-//       { empId: req.body.empId },
-//       {
-//         name: req.body.name,
-//         designation: req.body.designation,
-//         ctc: req.body.ctc,
-//         selected: req.body.selected,
-//       },
-//       { new: true }
-//     );
-
-//     let temp1 = {};
-//     Object.assign(temp1, selectedEmployeeNew);
-//     delete temp1._doc._id;
-//     delete temp1._doc.__v;
-
-//     let temp2 = {};
-//     Object.assign(temp2, selectedEmployeeReturned);
-//     delete temp2._doc._id;
-//     delete temp2._doc.__v;
-
-//     if (!_.isEqual(temp1._doc, temp2._doc)) {
-//       throw new Error("Data inconsistent between Server and Database");
-//     }
-
-//     res.status(200).send({ data: "Put Successful" });
-//   } catch (error) {
-//     console.log("Server-Error");
-//     console.log(error);
-//     res.status(500).send({ data: "Put Failure : " + error });
-//   }
-// });
-
 router.get("/payDrive", async (req, res) => {
   try {
     const payDrive = await PayDrive.find();
@@ -891,7 +874,6 @@ router.post("/payDrive", async (req, res) => {
       totalPayment: req.body.totalPayment,
       totalEmployee: req.body.totalEmployee,
       payDay: req.body.payDay,
-      employees: req.body.employees,
     });
 
     // console.log(payDrive);

@@ -205,6 +205,7 @@ function EmployeeAdder() {
           phone: phone,
           email: email,
           ctc: paySlip.ctc,
+          selected: true,
         })
       );
       const response = await fetch("http://127.0.0.1:3000/app/employee", {
@@ -225,6 +226,7 @@ function EmployeeAdder() {
           phone: phone,
           email: email,
           ctc: paySlip.ctc,
+          selected: true,
         }),
       });
 

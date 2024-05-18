@@ -5,6 +5,7 @@ import { NavLink, useParams } from "react-router-dom";
 
 function SalaryTemplateEditor() {
   console.log("SalaryTemplateEditor Running");
+  
   const { profile } = useParams();
   const [basic, setBasic] = useState(0);
   const [ctc, setCTC] = useState(0);
@@ -320,6 +321,7 @@ function SalaryTemplateEditor() {
           </tbody>
         </table>
       </div>
+      <hr />
       <div>
         <button
           onClick={() => {

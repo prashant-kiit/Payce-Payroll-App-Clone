@@ -21,6 +21,7 @@ function EmployeeEditor() {
   const [dialCode, setDialCode] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [selected, setSelected] = useState("");
   // const [ctc, setCTC] = useState("");
 
   const [educations, setEducations] = useState([]);
@@ -46,7 +47,8 @@ function EmployeeEditor() {
       await getDepartments();
       await getLocations();
       await getDailCodes();
-      await getEmployee();
+      let currentPaySlip = await getEmployee();
+      await getSalaryComponentNames(currentPaySlip);
     })();
   }, []);
 
@@ -220,6 +222,7 @@ function EmployeeEditor() {
       setDialCode(response.data[0].dialCode);
       setPhone(response.data[0].phone);
       setEmail(response.data[0].email);
+      setSelected(response.data[0].selected);
 
       console.log(
         "Status : " +
@@ -227,6 +230,8 @@ function EmployeeEditor() {
           " - Status Text : " +
           response.request.statusText
       );
+
+      return response.data[0].paySlip;
     } catch (error) {
       setIsError(!isError);
       setErrorMessage(error.message + " - " + error.response.data.data);
@@ -242,7 +247,6 @@ function EmployeeEditor() {
       const response = await axios.put(
         `http://127.0.0.1:3000/app/employee/${empId}`,
         {
-          empId: empId,
           name: name,
           education: education,
           designation: designation,
@@ -254,6 +258,7 @@ function EmployeeEditor() {
           phone: phone,
           email: email,
           ctc: paySlip.ctc,
+          selected: selected,
         }
       );
 
@@ -363,15 +368,6 @@ function EmployeeEditor() {
       <div>
         <div>
           <p>Employee Edited</p>
-        </div>
-        <div>
-          <button
-            onClick={() => {
-              window.location.reload();
-            }}
-          >
-            Edit The Employee Again
-          </button>
         </div>
         <div>
           <br />
@@ -591,7 +587,7 @@ function EmployeeEditor() {
           type="number"
           name="ctc"
           key={"11"}
-          value={paySlip.ctc}
+          value={paySlip?.ctc}
           disabled
         />
         <br />
