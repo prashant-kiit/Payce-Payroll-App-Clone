@@ -1,14 +1,14 @@
 import express from "express";
 import cors from "cors";
 import routes from "./routes.js";
-import pdfGenerator from "./pdfGenerator.js";
+import paySlipGenerator from "./paySlipGenerator.js";
 import dbconnect from "./database.js";
 
 const server = express();
 server.use(cors());
 server.use(express.json());
 server.use("/app", routes);
-server.use("/app", pdfGenerator);
+server.use("/app", paySlipGenerator);
 
 const hostname = "127.0.0.1";
 const port = 3000;

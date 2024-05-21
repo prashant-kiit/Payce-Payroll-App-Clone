@@ -6,15 +6,27 @@ import Organization from "./models/organization.js";
 
 const router = Router();
 
-router.get("/paySlip/:empId", async (req, res) => {
-  const organization = await Organization.find();
+router.get("/paySlip", async (req, res) => {
+  try {
+    const organization = await Organization.find();
+    const employees = await Employee.find();
+    console.log(organization[0]);
+    employees.forEach(async (employee) => {
+      console.log(employee);
+      await generatePaySlip(organization[0], employee);
+    });
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+  }
+});
 
-  const employee = await Employee.find({
-    empId: req.params.empId,
-  });
+async function generatePaySlip(organization, employee) {
+  let salaryComponentsTemp = [
+    ["Basic(Rs.)", "absolute", employee.paySlip.basic, employee.paySlip.basic],
+  ];
 
-  let salaryComponentsTemp = [];
-  employee[0].paySlip.salaryComponents.forEach((salaryComponent) => {
+  employee.paySlip.salaryComponents.forEach((salaryComponent) => {
     let payType =
       salaryComponent.calculationType === "absolute" ? "(Rs.)" : "(%)";
     let name = salaryComponent.name + payType;
@@ -23,8 +35,9 @@ router.get("/paySlip/:empId", async (req, res) => {
     if (salaryComponent.calculationType === "absolute") {
       value = salaryComponent.amount;
     } else {
-      value = (salaryComponent.amount / 100) * employee[0].paySlip.basic;
+      value = (salaryComponent.amount / 100) * employee.paySlip.basic;
     }
+
     salaryComponentsTemp.push([
       name,
       salaryComponent.calculationType,
@@ -34,23 +47,23 @@ router.get("/paySlip/:empId", async (req, res) => {
   });
 
   const paySlip = {
-    organization: organization[0].name,
+    organization: organization.name,
 
     employeeDetails: [
-      ["Name", employee[0].name],
-      ["Id", employee[0].empId],
-      ["Designation", employee[0].paySlip.profile],
-      ["Department", employee[0].department],
-      ["Location", employee[0].location],
+      ["Name", employee.name],
+      ["Id", employee.empId],
+      ["Designation", employee.paySlip.profile],
+      ["Department", employee.department],
+      ["Location", employee.location],
     ],
 
     salaryComponents: salaryComponentsTemp,
 
-    ctc: ["Cost to Company", employee[0].paySlip.ctc],
+    ctc: ["Cost to Company", employee.paySlip.ctc],
   };
 
-  generatePDF(paySlip, `Pay_Slip_${employee[0].empId}.pdf`);
-});
+  generatePDF(paySlip, `paySlips/Pay_Slip_${employee.empId}.pdf`);
+}
 
 function generatePDF(paySlip, filename) {
   const doc = new PDFDocument();
@@ -104,6 +117,6 @@ function drawTable(doc, paySlip) {
   doc.text(paySlip.ctc[1], startX + 352.5 + 5, startY + 5);
 }
 
-// generatePDF();
+// generatePaySlip();
 
 export default router;
