@@ -5,6 +5,7 @@ const PayDriveSchema = new Schema({
   totalPayment: Number,
   totalEmployee: Number,
   payDay: String,
+  paid: Boolean,
 });
 
 const PayDrive = model("PayDrives", PayDriveSchema);

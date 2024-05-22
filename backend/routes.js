@@ -2,6 +2,8 @@ import { Router } from "express";
 import dotenv from "dotenv";
 import twilio from "twilio";
 import readline from "readline";
+import { exec } from "child_process";
+import { promisify } from "util";
 import _ from "lodash";
 import Organization from "./models/organization.js";
 import Employee from "./models/employee.js";
@@ -850,7 +852,7 @@ router.get("/payDrive", async (req, res) => {
   try {
     const payDrive = await PayDrive.find();
 
-    // console.log(selectedEmployees);
+    // console.log(payDrive);
 
     if (payDrive.length === 0) {
       throw new Error("No Data");
@@ -874,6 +876,7 @@ router.post("/payDrive", async (req, res) => {
       totalPayment: req.body.totalPayment,
       totalEmployee: req.body.totalEmployee,
       payDay: req.body.payDay,
+      paid: req.body.paid,
     });
 
     // console.log(payDrive);
@@ -891,6 +894,23 @@ router.post("/payDrive", async (req, res) => {
     console.log("Server-Error");
     console.log(error);
     res.status(500).send({ data: "Post Failure : " + error });
+  }
+});
+
+router.post("/payDriveScheduler", (req, res) => {
+  try {
+    const execAsync = promisify(exec);
+
+    const promise = execAsync(req.body.cmd);
+
+    res.status(200).send({
+      data: "Scheduler executor submitted successfully",
+      promise: promise,
+    });
+  } catch (error) {
+    console.log("Server-error");
+    console.error(error);
+    res.status(200).send({ data: "Post Failure. Error: " + error });
   }
 });
 
@@ -931,7 +951,7 @@ router.get("/attendance/:empId", async (req, res) => {
   }
 });
 
-router.post("/send-sms", async (req, res) => {
+router.post("/smsSender", async (req, res) => {
   try {
     const dialCode = req.body.dialCode;
     const phone = req.body.phone;
@@ -951,5 +971,6 @@ router.post("/send-sms", async (req, res) => {
     res.status(500).send({ data: "Post Failure : " + error });
   }
 });
+
 
 export default router;

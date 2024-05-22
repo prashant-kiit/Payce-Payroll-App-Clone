@@ -4,14 +4,25 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import EmployeePayActionOuter from "./EmployeePayActionOuter";
 
+const monthDayCount = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+function getNextPayDay(submittedPayDay) {
+  const date = new Date(submittedPayDay);
+  date.setDate(date.getDate() + monthDayCount[date.getMonth() + 1]);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() is zero-based
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function PayDrive() {
   console.log("Pay Drive Running");
 
-  const [employees, setEmployees] = useState([]);
   const [totalPayment, setTotalPayment] = useState(0);
   const [totalEmployee, setTotalEmployee] = useState(0);
   const [payDay, setPayDay] = useState("");
-  const [isLock, setIsLock] = useState(false);
+  const [status, setStatus] = useState("");
+  const [employees, setEmployees] = useState([]);
   let index = 0;
 
   const payDriveAndEmployeesGet = useQuery({
@@ -30,14 +41,18 @@ function PayDrive() {
       },
     });
 
-    console.log(response);
-
-    console.log("PayDrive");
     console.log(response.data[0]);
 
     setTotalPayment(response.data[0].totalPayment);
     setTotalEmployee(response.data[0].totalEmployee);
-    setPayDay(response.data[0].payDay);
+    setStatus(response.data[0].paid);
+    if (response.data[0].paid) {
+      setPayDay(getNextPayDay(response.data[0].payDay));
+      setStatus("Unscheduled");
+    } else {
+      setPayDay(response.data[0].payDay);
+      setStatus("Scheduled on " + response.data[0].payDay);
+    }
   };
 
   const getEmployees = async () => {
@@ -58,16 +73,18 @@ function PayDrive() {
   const payDriveAndEmployeesPost = useMutation({
     mutationFn: async () => {
       await postPayDrive();
+      await postPayDriveScheduler();
       await putEmployees();
     },
   });
 
   const postPayDrive = async () => {
-    console.log({
-      totalPayment: totalPayment,
-      totalEmployee: totalEmployee,
-      payDay: payDay,
-    });
+    // console.log({
+    //   totalPayment: totalPayment,
+    //   totalEmployee: totalEmployee,
+    //   payDay: payDay,
+    //   paid: false,
+    // });
 
     const response = await axios.post(
       "http://127.0.0.1:3000/app/payDrive",
@@ -75,6 +92,7 @@ function PayDrive() {
         totalPayment: totalPayment,
         totalEmployee: totalEmployee,
         payDay: payDay,
+        paid: false,
       },
       {
         headers: {
@@ -86,8 +104,22 @@ function PayDrive() {
     console.log(response);
   };
 
+  const postPayDriveScheduler = async () => {
+    const response = await axios.post(
+      "http://127.0.0.1:3000/app/payDriveScheduler",
+      { cmd: "node paySlipGeneratorClient.js" },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log(response);
+  };
+
   const putEmployees = async () => {
-    console.log(employees);
+    // console.log(employees);
 
     employees.map(async (employee) => {
       const response = await axios.put(
@@ -130,24 +162,24 @@ function PayDrive() {
             value={totalEmployee}
             disabled
           />
-          <br />
-          <label htmlFor="payDay"> Pay Day </label>
+          <label htmlFor="payDay"> Next Pay Day </label>
           <input
             type="date"
             id="payDay"
             value={payDay}
-            disabled={isLock}
             onChange={(event) => {
-              setPayDay(event.target.value);
+              const selectedDate = new Date(event.target.value);
+              const currentDate = new Date();
+              currentDate.setHours(0, 0, 0, 0);
+              if (selectedDate >= currentDate) setPayDay(event.target.value);
+              else
+                alert(
+                  "Select a date that is equal to or greater than today's date"
+                );
             }}
           />
-          <button
-            onClick={() => {
-              setIsLock(!isLock);
-            }}
-          >
-            {!isLock ? "Confirm PayDay" : "Unconfirm PayDay"}
-          </button>
+          <label htmlFor="status"> Drive Status </label>
+          <input type="text" id="status" value={status} disabled />
         </div>
       )}
       <hr />
@@ -194,8 +226,8 @@ function PayDrive() {
       <div>
         <button
           onClick={() => {
-            if (!isLock) alert("Pay Day Confirmation is Mandatory");
-            else payDriveAndEmployeesPost.mutate();
+            payDriveAndEmployeesPost.mutate();
+            setStatus("Scheduled on " + payDay);
           }}
         >
           Submit

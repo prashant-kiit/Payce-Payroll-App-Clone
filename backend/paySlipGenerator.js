@@ -10,14 +10,17 @@ router.get("/paySlip", async (req, res) => {
   try {
     const organization = await Organization.find();
     const employees = await Employee.find();
-    console.log(organization[0]);
+
     employees.forEach(async (employee) => {
-      console.log(employee);
       await generatePaySlip(organization[0], employee);
     });
+
+    res.status(200).send({ data: "Get Successful" });
   } catch (error) {
     console.log("Server-Error");
     console.log(error);
+
+    res.status(200).send({ data: "Get Failure. Error: " + error.message });
   }
 });
 

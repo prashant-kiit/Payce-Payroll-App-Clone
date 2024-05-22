@@ -7,8 +7,10 @@ const dbconnect = async () => {
   try {
     await connect(uri);
     console.log("Database connected successfully");
-  } catch (err) {
-    console.log("Error : " + err);
+  } catch (error) {
+    console.log("Database-Error");
+    console.log(error);
+    // process.exit(1); // internally managed by connect()
   }
 };
 
