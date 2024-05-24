@@ -73,8 +73,8 @@ function PayDrive() {
   const payDriveAndEmployeesPost = useMutation({
     mutationFn: async () => {
       await postPayDrive();
-      await postPayDriveScheduler();
       await putEmployees();
+      await postPayDriveScheduler();
     },
   });
 
@@ -94,20 +94,6 @@ function PayDrive() {
         payDay: payDay,
         paid: false,
       },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log(response);
-  };
-
-  const postPayDriveScheduler = async () => {
-    const response = await axios.post(
-      "http://127.0.0.1:3000/app/payDriveScheduler",
-      { cmd: "node paySlipGeneratorClient.js" },
       {
         headers: {
           "Content-Type": "application/json",
@@ -138,6 +124,20 @@ function PayDrive() {
 
       console.log(response);
     });
+  };
+
+  const postPayDriveScheduler = async () => {
+    const response = await axios.post(
+      "http://127.0.0.1:3000/app/payDriveScheduler",
+      { cmd: "node paySlipGeneratorClient.js" },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log(response);
   };
 
   return (

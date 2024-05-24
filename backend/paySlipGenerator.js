@@ -120,6 +120,4 @@ function drawTable(doc, paySlip) {
   doc.text(paySlip.ctc[1], startX + 352.5 + 5, startY + 5);
 }
 
-// generatePaySlip();
-
 export default router;

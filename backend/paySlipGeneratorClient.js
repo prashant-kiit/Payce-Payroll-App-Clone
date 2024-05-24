@@ -2,6 +2,7 @@ import dbconnect from "./database.js";
 import axios from "axios";
 import scheduler from "node-schedule";
 import PayDrive from "./models/payDrive.js";
+import PayDriveHistory from "./models/payDriveHistory.js";
 
 async function startPaySlipGeneration() {
   const response = await axios.get("http://127.0.0.1:3000/app/paySlip", {
@@ -14,6 +15,8 @@ async function startPaySlipGeneration() {
     status: response.status,
     data: response.data,
   });
+
+  return response.status;
 }
 
 async function startPayDayAssignment() {
@@ -26,20 +29,38 @@ async function startPayDayAssignment() {
       Number(year),
       Number(month) - 1,
       Number(day),
-      20,
-      40,
+      22,
+      29,
       0
     );
 
     scheduler.scheduleJob(payTime, async () => {
-      await startPaySlipGeneration();
-      await PayDrive.findOneAndUpdate(
+      const status = await startPaySlipGeneration();
+
+      if (!status === 200) return new Error("Pay Slip Generation failed");
+
+      const payDriveReturned = await PayDrive.findOneAndUpdate(
         { payDay: payDrive[0].payDay },
         {
           paid: true,
         },
         { new: true }
       );
+
+      // console.log(payDriveReturned);
+
+      if (!payDriveReturned.paid)
+        return new Error("Paid Status not updated to true");
+
+      const lastPayDrive = new PayDriveHistory({
+        totalPayment: payDriveReturned.totalPayment,
+        totalEmployee: payDriveReturned.totalEmployee,
+        payDay: payDriveReturned.payDay,
+        paid: payDriveReturned.paid,
+      });
+
+      await lastPayDrive.save();
+
       process.exit(0);
     });
   } catch (error) {

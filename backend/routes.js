@@ -17,6 +17,7 @@ import Qualification from "./models/education.js";
 import SalaryComponent from "./models/salaryComponent.js";
 import SalaryTemplate from "./models/salaryTemplate.js";
 import PayDrive from "./models/payDrive.js";
+import PayDriveHistory from "./models/payDriveHistory.js";
 
 const router = Router();
 // dotenv.config();
@@ -452,7 +453,7 @@ router.put("/employee/selected/:empId", async (req, res) => {
       { new: true }
     );
 
-    console.log(employeeReturned);
+    // console.log(employeeReturned);
 
     res.status(200).send({ data: "Put Successful" });
   } catch (error) {
@@ -909,8 +910,26 @@ router.post("/payDriveScheduler", (req, res) => {
     });
   } catch (error) {
     console.log("Server-error");
-    console.error(error);
+    console.log(error);
     res.status(200).send({ data: "Post Failure. Error: " + error });
+  }
+});
+
+router.get("/payDriveHistory", async (req, res) => {
+  try {
+    const payDriveHistory = await PayDriveHistory.find();
+
+    // console.log(payDriveHistory);
+
+    if (payDriveHistory.length === 0) {
+      throw new Error("No Data");
+    }
+
+    res.status(200).send(payDriveHistory);
+  } catch (error) {
+    console.log("Server-Error");
+    console.log(error);
+    res.status(500).send({ data: "Get Failure : " + error });
   }
 });
 
@@ -971,6 +990,5 @@ router.post("/smsSender", async (req, res) => {
     res.status(500).send({ data: "Post Failure : " + error });
   }
 });
-
 
 export default router;
